@@ -1,0 +1,59 @@
+{
+  "schema_version": 2,
+  "models": [
+    {
+      "role": "decider",
+      "provider": "none",
+      "requested_model": null,
+      "served_model": "random-policy",
+      "sdk_package": null,
+      "sdk_version": null,
+      "player": "random"
+    }
+  ],
+  "config": {
+    "env_id": "ALE/SpaceInvaders-v5",
+    "frameskip": 4,
+    "repeat_action_probability": 0.25,
+    "full_action_space": false,
+    "max_num_frames_per_episode": 108000,
+    "obs_type": "ram",
+    "wrappers": [],
+    "decision_interval_steps": 1,
+    "state_encoding": "ram+decode",
+    "ale_py_version": "0.12.1",
+    "gymnasium_version": "1.3.0"
+  },
+  "runs": [
+    {
+      "seed": 101,
+      "score": 110.0,
+      "steps": 383,
+      "frames": 1531,
+      "lives_lost": 3,
+      "terminated": true,
+      "truncated": false,
+      "model_calls": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "latency_ms_p50": 0.008283008355647326,
+      "latency_ms_p95": 0.011227492359466847,
+      "latency_ms_total": 3.442910048761405,
+      "errors_by_status": {},
+      "retries": 0,
+      "fallback_actions": 0,
+      "wall_clock_s": 0.5413870639895322,
+      "served_model": "random-policy",
+      "player": "random",
+      "mode": "turn",
+      "added_delay_ms": 0.0,
+      "decisions": 383,
+      "max_steps": null,
+      "run": 1
+    }
+  ],
+  "baseline": {
+    "model": "claude-haiku-4-5",
+    "runs": []
+  }
+}

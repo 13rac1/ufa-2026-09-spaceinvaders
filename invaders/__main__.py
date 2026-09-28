@@ -9,6 +9,7 @@ from pathlib import Path
 
 from invaders.bench import build_matrix, existing_keys, game_key, play_and_record
 from invaders.players.code_player import CodePlayer, LatencyAwareCodePlayer
+from invaders.players.fire_player import AlwaysFirePlayer
 from invaders.players.llm_player import LLMPlayer
 from invaders.players.random_player import RandomPlayer
 from invaders.players.systemone import MissingAPIKeyError, SystemOnePlayer
@@ -21,6 +22,7 @@ PLAYERS = {
     "code": CodePlayer,
     "code-la": LatencyAwareCodePlayer,
     "random": RandomPlayer,
+    "always-fire": AlwaysFirePlayer,
     "jev-t1": functools.partial(
         SystemOnePlayer,
         name="jev-t1",

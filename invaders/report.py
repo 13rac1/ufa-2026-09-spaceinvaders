@@ -19,7 +19,7 @@ HUMAN_HIGH = 1668.7
 # none today) would sort after these, alphabetically.
 PLAYER_ORDER = [
     "code", "code-la", "jev-t3", "jev-t2", "jev-t1", "laya-t2", "laya-t1", "llm-t2", "llm-t1",
-    "random",
+    "always-fire", "random",
 ]
 
 # What each decider is told before it decides; see FAIR_EVALUATION.md.
@@ -293,6 +293,7 @@ def build_ladder(records: list[dict]) -> str:
         costs = [r["cost_usd"] for r in runs if r.get("cost_usd") is not None]
         cost = f"{statistics.mean(costs):.4f}" if costs else "n/a"
         note = TIER_NOTE.get(tier, "rules over the decoded state" if player.startswith("code")
+                             else "none: presses FIRE every step" if player == "always-fire"
                              else "no input")
         lines.append(f"| {player} | {note} | {cells[0]} | {cells[1]} | {latency:.1f} | {cost} |")
     return "\n".join(lines)

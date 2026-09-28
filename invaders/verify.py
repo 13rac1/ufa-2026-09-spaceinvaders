@@ -7,7 +7,7 @@ give the recorded score exactly. Only runs of the current player version can rep
 
 from invaders.harness import run_game
 
-REPLAYABLE = ("code", "code-la", "random")
+REPLAYABLE = ("code", "code-la", "random", "always-fire")
 
 
 def verify(results: dict, players: dict, limit: int | None = None) -> list[dict]:

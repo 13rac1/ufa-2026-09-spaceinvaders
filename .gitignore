@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.env
+*.egg-info/
+# Session-local state
+STATUS.md
+BRIEF.md
+# Large run output; tables and results.json are committed
+logs/
+videos/

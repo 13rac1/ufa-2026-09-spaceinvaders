@@ -115,14 +115,14 @@ def test_report_is_deterministic(tmp_path):
 
 def test_head_to_head_counts_wins(tmp_path):
     runs = [
-        make_record("jev", "turn", 101, 300.0),
-        make_record("jev", "turn", 102, 100.0),
-        make_record("jev", "turn", 103, 50.0),
+        make_record("jev-t2", "turn", 101, 300.0),
+        make_record("jev-t2", "turn", 102, 100.0),
+        make_record("jev-t2", "turn", 103, 50.0),
     ]
     baseline_runs = [
-        make_record("llm", "turn", 101, 200.0),
-        make_record("llm", "turn", 102, 100.0),
-        make_record("llm", "turn", 104, 999.0),  # seed not shared with jev
+        make_record("llm-t2", "turn", 101, 200.0),
+        make_record("llm-t2", "turn", 102, 100.0),
+        make_record("llm-t2", "turn", 104, 999.0),  # seed not shared with jev
     ]
     results_path = tmp_path / "results.json"
     results_path.write_text(json.dumps(make_results(runs, baseline_runs)))
@@ -133,14 +133,14 @@ def test_head_to_head_counts_wins(tmp_path):
     # seed 101: jev 300 > llm 200 -> jev win
     # seed 102: jev 100 == llm 100 -> tie
     # seed 103 and 104 are not shared, excluded
-    assert "| 101 | 300.0 | 200.0 | jev |" in readme
+    assert "| 101 | 300.0 | 200.0 | jev-t2 |" in readme
     assert "| 102 | 100.0 | 100.0 | tie |" in readme
     assert "103" not in readme.split("Head-to-head")[1].split("##")[0]
-    assert "Total: jev wins 1, llm wins 0, ties 1 (of 2 shared seeds)." in readme
+    assert "Total: jev-t2 wins 1, llm-t2 wins 0, ties 1 (of 2 shared seeds)." in readme
 
 
 def test_head_to_head_omitted_cleanly_when_llm_absent(tmp_path):
-    runs = [make_record("jev", "turn", 101, 300.0)]
+    runs = [make_record("jev-t2", "turn", 101, 300.0)]
     results_path = tmp_path / "results.json"
     results_path.write_text(json.dumps(make_results(runs)))
 
@@ -148,5 +148,5 @@ def test_head_to_head_omitted_cleanly_when_llm_absent(tmp_path):
     readme = (tmp_path / "report" / "README.md").read_text()
 
     section = readme.split("Head-to-head")[1].split("##")[0]
-    assert "No head-to-head: llm has no turn-mode runs." in section
+    assert "No head-to-head: llm-t2 has no turn-mode runs." in section
     assert "| seed |" not in section

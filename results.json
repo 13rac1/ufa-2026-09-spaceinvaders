@@ -18,6 +18,15 @@
       "sdk_package": null,
       "sdk_version": null,
       "player": "random"
+    },
+    {
+      "role": "decider",
+      "provider": "none",
+      "requested_model": null,
+      "served_model": "always-fire",
+      "sdk_package": null,
+      "sdk_version": null,
+      "player": "always-fire"
     }
   ],
   "config": {
@@ -788,6 +797,37 @@
       "notes": "Tier 1 question v3 (decoded positions, the organizers' state)",
       "cost_usd": 0.009399,
       "run": 25
+    },
+    {
+      "seed": 101,
+      "score": 285.0,
+      "steps": 726,
+      "frames": 2903,
+      "lives_lost": 3,
+      "terminated": true,
+      "truncated": false,
+      "model_calls": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "latency_ms_p50": 0.002291999408043921,
+      "latency_ms_p95": 0.0037074969441164285,
+      "latency_ms_total": 1.820222838432528,
+      "errors_by_status": {},
+      "retries": 0,
+      "fallback_actions": 0,
+      "wall_clock_s": 1.2835921140067512,
+      "served_model": "always-fire",
+      "player": "always-fire",
+      "player_version": null,
+      "mode": "turn",
+      "added_delay_ms": 0.0,
+      "decisions": 726,
+      "max_steps": null,
+      "input_tier": null,
+      "question_version": null,
+      "notes": "floor: presses FIRE every step",
+      "cost_usd": 0.0,
+      "run": 26
     }
   ],
   "baseline": {

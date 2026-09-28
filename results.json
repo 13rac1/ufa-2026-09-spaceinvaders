@@ -180,6 +180,32 @@
       "decisions": 317,
       "max_steps": null,
       "run": 6
+    },
+    {
+      "seed": 107,
+      "score": 105.0,
+      "steps": 433,
+      "frames": 1731,
+      "lives_lost": 3,
+      "terminated": true,
+      "truncated": false,
+      "model_calls": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "latency_ms_p50": 0.008132992661558092,
+      "latency_ms_p95": 0.014328403631225225,
+      "latency_ms_total": 3.9414749771822244,
+      "errors_by_status": {},
+      "retries": 0,
+      "fallback_actions": 0,
+      "wall_clock_s": 0.6220412110124016,
+      "served_model": "random-policy",
+      "player": "random",
+      "mode": "turn",
+      "added_delay_ms": 0.0,
+      "decisions": 433,
+      "max_steps": null,
+      "run": 7
     }
   ],
   "baseline": {

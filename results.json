@@ -3,6 +3,15 @@
   "models": [
     {
       "role": "decider",
+      "provider": "typesafe",
+      "requested_model": "jev-latest",
+      "served_model": "jev-1.13.0",
+      "sdk_package": "httpx",
+      "sdk_version": "0.28.1",
+      "player": "jev-t1"
+    },
+    {
+      "role": "decider",
       "provider": "none",
       "requested_model": null,
       "served_model": "random-policy",
@@ -284,6 +293,39 @@
       "decisions": 419,
       "max_steps": null,
       "run": 10
+    },
+    {
+      "seed": 101,
+      "score": 110.0,
+      "steps": 491,
+      "frames": 1963,
+      "lives_lost": 3,
+      "terminated": true,
+      "truncated": false,
+      "model_calls": 491,
+      "input_tokens": 463548,
+      "output_tokens": 33297,
+      "latency_ms_p50": 91.0713180055609,
+      "latency_ms_p95": 135.71182799933013,
+      "latency_ms_total": 48292.92164216167,
+      "errors_by_status": {},
+      "retries": 0,
+      "fallback_actions": 0,
+      "wall_clock_s": 49.22268487000838,
+      "served_model": "jev-1.13.0",
+      "player": "jev-t1",
+      "player_version": "q3",
+      "mode": "turn",
+      "added_delay_ms": 0.0,
+      "decisions": 491,
+      "max_steps": null,
+      "mean_confidence": 0.36071283095723017,
+      "low_conf_rate": 1.0,
+      "input_tier": 1,
+      "question_version": 3,
+      "notes": "Tier 1 question v3 (decoded positions, the organizers' state)",
+      "cost_usd": 0.019469,
+      "run": 11
     }
   ],
   "baseline": {

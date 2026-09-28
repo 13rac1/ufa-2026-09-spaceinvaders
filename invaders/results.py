@@ -1,5 +1,6 @@
 """Read, append to, and commit results.json, the organizers' run-record file."""
 
+import fcntl
 import json
 import subprocess
 from pathlib import Path
@@ -12,6 +13,35 @@ from invaders.env import ENV_ID
 SCHEMA_VERSION = 2
 STATE_ENCODING = "ram+decode"
 RESULTS_FILENAME = "results.json"
+LOCK_FILENAME = ".results.lock"
+
+# Input-token prices used for cost_usd, with their source. JEV bills input tokens only.
+PRICES = {
+    "typesafe": {
+        "input_per_mtok_usd": 0.042,
+        "output_per_mtok_usd": 0.0,
+        "source": "https://docs.typesafe.ai/models.md (2026-09-28)",
+    },
+}
+
+
+def is_baseline(player: str) -> bool:
+    """The LLM players are the organizers' baseline; they go to baseline.runs."""
+    return player.startswith("llm")
+
+
+def cost_usd(record: dict, provider: str | None) -> float | None:
+    """Cost of a run from its token counts and PRICES; None when the price is unknown."""
+    if provider in ("none", "laya", "local"):
+        return 0.0  # code, or a model served on our own hardware
+    price = PRICES.get(provider or "")
+    if price is None:
+        return None
+    return round(
+        record["input_tokens"] * price["input_per_mtok_usd"] / 1e6
+        + record["output_tokens"] * price["output_per_mtok_usd"] / 1e6,
+        6,
+    )
 
 
 def _default_results() -> dict:
@@ -30,6 +60,7 @@ def _default_results() -> dict:
             "state_encoding": STATE_ENCODING,
             "ale_py_version": ale_py.__version__,
             "gymnasium_version": gymnasium.__version__,
+            "prices": PRICES,
         },
         "runs": [],
         "baseline": {"model": None, "runs": []},
@@ -58,11 +89,11 @@ def build_model_entry(
     served_model: str | None = None,
     sdk_package: str | None = None,
     sdk_version: str | None = None,
-    role: str = "decider",
+    role: str | None = None,
 ) -> dict:
     """Build a models[] entry from a player and the served model of its run."""
     return {
-        "role": role,
+        "role": role or ("baseline" if is_baseline(player.name) else "decider"),
         "provider": player.provider,
         "requested_model": player.requested_model,
         "served_model": served_model,
@@ -102,11 +133,16 @@ def append_run(results: dict, record: dict, model: dict | None = None) -> int:
         for m in results["models"]
     ):
         results["models"].append(model)
+        # The organizers read models[] for the JEV decider and the LLM baseline: list
+        # those first, then the other deciders.
+        results["models"].sort(
+            key=lambda m: (m.get("provider") != "typesafe", m.get("role") != "baseline")
+        )
 
     if record.get("max_steps") is not None:
         results["config"]["max_steps"] = record["max_steps"]
 
-    if record.get("player") == "llm":
+    if is_baseline(record.get("player", "")):
         if model is not None:
             results["baseline"]["model"] = model.get("requested_model") or model.get(
                 "served_model"
@@ -134,17 +170,26 @@ def record_and_commit(
     repo_dir = Path(repo_dir)
     results_path = repo_dir / RESULTS_FILENAME
 
-    results = load_results(results_path)
-    run_number = append_run(results, record, model=model)
-    write_results(results, results_path)
+    if model is not None and "cost_usd" not in record:
+        record = {**record, "cost_usd": cost_usd(record, model.get("provider"))}
 
-    subprocess.run(["git", "add", RESULTS_FILENAME], cwd=repo_dir, check=True)
-    message = f"data(results): run {run_number}, {record['player']}, score {record['score']:g}"
-    # Commit only results.json, whatever else is staged.
-    subprocess.run(
-        ["git", "commit", "-m", message, "--", RESULTS_FILENAME], cwd=repo_dir, check=True
-    )
-    if push:
-        subprocess.run(["git", "push"], cwd=repo_dir, check=True)
+    # Two bench processes may finish games at the same time: hold the lock from the
+    # read of results.json to the push, so no run is lost and git never collides.
+    with open(repo_dir / LOCK_FILENAME, "w") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        results = load_results(results_path)
+        run_number = append_run(results, record, model=model)
+        write_results(results, results_path)
+
+        subprocess.run(["git", "add", RESULTS_FILENAME], cwd=repo_dir, check=True)
+        message = (
+            f"data(results): run {run_number}, {record['player']}, score {record['score']:g}"
+        )
+        # Commit only results.json, whatever else is staged.
+        subprocess.run(
+            ["git", "commit", "-m", message, "--", RESULTS_FILENAME], cwd=repo_dir, check=True
+        )
+        if push:
+            subprocess.run(["git", "push"], cwd=repo_dir, check=True)
 
     return results

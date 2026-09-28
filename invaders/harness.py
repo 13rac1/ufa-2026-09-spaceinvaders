@@ -69,6 +69,8 @@ def run_game(
     log_file = open(log_path, "w") if log_path is not None else None
 
     obs, info = env.reset(seed=seed)
+    if hasattr(player, "set_added_delay"):
+        player.set_added_delay(added_delay_ms)  # a player that knows its latency
     player.reset(seed)
 
     previous_action = NOOP
@@ -189,6 +191,7 @@ def run_game(
         "wall_clock_s": wall_clock_s,
         "served_model": served_model,
         "player": player.name,
+        "player_version": getattr(player, "version", None),
         "mode": mode,
         "added_delay_ms": added_delay_ms,
         "decisions": decisions,

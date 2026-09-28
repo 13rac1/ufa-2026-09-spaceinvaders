@@ -10,3 +10,4 @@ BRIEF.md
 # Large run output; tables and results.json are committed
 logs/
 videos/
+.results.lock

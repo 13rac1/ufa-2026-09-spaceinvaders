@@ -4,3 +4,10 @@ numpy==2.5.3
 pytest==9.1.1
 imageio==2.38.0
 imageio-ffmpeg==0.6.0
+httpx==0.28.1
+system-one-adapter[anthropic,openai]==0.2.1
+typesafe-sdk==0.7.2
+anthropic==1.8.0
+httpx2==2.13.1
+matplotlib==3.11.2
+openai==3.20.0

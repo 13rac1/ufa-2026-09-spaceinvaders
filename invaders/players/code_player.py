@@ -1,13 +1,18 @@
 """The deterministic player: rules over the decoded features, no model."""
 
 from invaders.players.base import Decision
-from invaders.state import ACTIONS
+from invaders.state import ACTIONS, project_features
 
 NOOP, FIRE, RIGHT, LEFT, RIGHTFIRE, LEFTFIRE = range(len(ACTIONS))
+
+# Recorded with every run; bump it when the decoder's targeting or choose() changes, so
+# the results history keeps each version's runs apart.
+CODE_VERSION = "v2"
 
 
 class CodePlayer:
     name = "code"
+    version = CODE_VERSION
     provider = "none"
     requested_model = None
 
@@ -15,7 +20,38 @@ class CodePlayer:
         pass
 
     def decide(self, state: dict, previous_action: int) -> Decision:
-        return Decision(action=choose(state["features"]), served_model="deterministic-code")
+        return Decision(action=choose(state["features"]), served_model=f"deterministic-code-{CODE_VERSION}")
+
+
+class LatencyAwareCodePlayer:
+    """The code player for a known decision latency.
+
+    Its action takes effect one latency after the state was read, so it decides on
+    the state projected that far ahead. The harness reports the added delay through
+    set_added_delay(). Projecting exactly the latency scored best on the tuning
+    seeds (1-8) against the latency plus one step and 1.5 times the latency plus 2
+    frames.
+    """
+
+    name = "code-la"
+    version = CODE_VERSION
+    provider = "none"
+    requested_model = None
+
+    def __init__(self) -> None:
+        self._frames = 0.0
+
+    def set_added_delay(self, added_delay_ms: float) -> None:
+        self._frames = added_delay_ms / 1000 * 60
+
+    def reset(self, seed: int) -> None:
+        pass
+
+    def decide(self, state: dict, previous_action: int) -> Decision:
+        features = project_features(state, self._frames, previous_action)
+        return Decision(
+            action=choose(features), served_model=f"deterministic-code-latency-aware-{CODE_VERSION}"
+        )
 
 
 def choose(f: dict) -> int:

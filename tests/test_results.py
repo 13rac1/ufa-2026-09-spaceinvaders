@@ -1,5 +1,6 @@
 """Tests for results.json shape, run numbering and record_and_commit."""
 
+from pathlib import Path
 import json
 import subprocess
 
@@ -138,3 +139,22 @@ def test_record_and_commit_makes_one_commit(tmp_path):
         saved = json.load(f)
     assert saved["runs"][0]["run"] == 1
     assert saved["models"] == [model]
+
+
+class _Player:
+    def __init__(self, name, provider):
+        self.name, self.provider, self.requested_model = name, provider, name
+
+
+def test_llm_tier_players_are_the_baseline_and_models_list_jev_first():
+    from invaders.results import build_model_entry, cost_usd
+
+    results = load_results(Path("/nonexistent/results.json"))
+    for name, provider in (("code", "none"), ("llm-t2", "local"), ("jev-t2", "typesafe")):
+        record = make_record(player=name)
+        append_run(results, record, model=build_model_entry(_Player(name, provider)))
+    assert [r["player"] for r in results["baseline"]["runs"]] == ["llm-t2"]
+    assert [m["role"] for m in results["models"]] == ["decider", "baseline", "decider"]
+    assert results["models"][0]["provider"] == "typesafe"
+    assert cost_usd({"input_tokens": 1_000_000, "output_tokens": 5}, "typesafe") == 0.042
+    assert cost_usd({"input_tokens": 9, "output_tokens": 9}, "local") == 0.0

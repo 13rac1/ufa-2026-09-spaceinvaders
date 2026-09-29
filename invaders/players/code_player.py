@@ -20,7 +20,7 @@ class CodePlayer:
         pass
 
     def decide(self, state: dict, previous_action: int) -> Decision:
-        return Decision(action=choose(state["code_features"]), served_model=f"deterministic-code-{CODE_VERSION}")
+        return Decision(action=choose(state["features"]), served_model=f"deterministic-code-{CODE_VERSION}")
 
 
 class LatencyAwareCodePlayer:
@@ -48,7 +48,7 @@ class LatencyAwareCodePlayer:
         pass
 
     def decide(self, state: dict, previous_action: int) -> Decision:
-        features = project_features(state, self._frames, previous_action, "code_fleet")
+        features = project_features(state, self._frames, previous_action)
         return Decision(
             action=choose(features), served_model=f"deterministic-code-latency-aware-{CODE_VERSION}"
         )

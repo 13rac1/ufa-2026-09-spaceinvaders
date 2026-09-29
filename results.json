@@ -11,6 +11,15 @@
       "player": "jev-t1"
     },
     {
+      "role": "baseline",
+      "provider": "anthropic",
+      "requested_model": "claude-haiku-4-5",
+      "served_model": "claude-haiku-4-5",
+      "sdk_package": "system-one-adapter",
+      "sdk_version": "0.2.1",
+      "player": "llm-t1"
+    },
+    {
       "role": "decider",
       "provider": "none",
       "requested_model": null,
@@ -1421,6 +1430,40 @@
   ],
   "baseline": {
     "model": "claude-haiku-4-5",
-    "runs": []
+    "runs": [
+      {
+        "seed": 105,
+        "score": 35.0,
+        "steps": 291,
+        "frames": 1163,
+        "lives_lost": 3,
+        "terminated": true,
+        "truncated": false,
+        "model_calls": 291,
+        "input_tokens": 324737,
+        "output_tokens": 15839,
+        "latency_ms_p50": 1085.6744030024856,
+        "latency_ms_p95": 1744.2244659978314,
+        "latency_ms_total": 360322.45928204793,
+        "errors_by_status": {},
+        "retries": 0,
+        "fallback_actions": 0,
+        "wall_clock_s": 360.91191551501106,
+        "served_model": "claude-haiku-4-5",
+        "player": "llm-t1",
+        "player_version": "q3",
+        "mode": "turn",
+        "added_delay_ms": 0.0,
+        "decisions": 291,
+        "max_steps": null,
+        "mean_confidence": 0.291146516713527,
+        "low_conf_rate": 0.9175257731958762,
+        "input_tier": 1,
+        "question_version": 3,
+        "notes": "Tier 1 question v3, claude-haiku-4-5 through the System One adapter",
+        "cost_usd": 0.403932,
+        "run": 46
+      }
+    ]
   }
 }

@@ -1,31 +1,62 @@
-"""Random search over decoder constants: search on seeds 1-60, confirm on 61-99."""
-import sys, random, json, numpy as np
-sys.path.insert(0, '.')
-import invaders.state as st
-from invaders.players.code_player import CodePlayer
-from invaders.diagnose import diagnose
+"""Random search over the code player's constants, on tuning seeds only.
 
+Search on seeds 10000-10199 (200 games per configuration), then confirm the best
+configurations on seeds 1-99. Evaluation seeds (101 and up, below 10000) are never used.
+
+Usage: python tools/search.py CONFIGS [PROCESSES]
+"""
+
+import os
+import random
+import sys
+from multiprocessing import Pool
+
+import numpy as np
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import invaders.state as st  # noqa: E402
+from invaders.diagnose import diagnose_game  # noqa: E402
+from invaders.players.code_player import CodePlayer  # noqa: E402
+
+SEARCH_SEEDS = list(range(10000, 10200))
+CONFIRM_SEEDS = list(range(1, 100))
 SPACE = {
     "ALIGNED_PX": [3, 4, 5],
-    "MOTHERSHIP_SAFE_ROW_Y": [125, 135, 145, 155],
-    "HIT_MARGIN": [1, 2, 3],
+    "HIT_MARGIN": [0, 1, 2],
     "HORIZON_FRAMES": [30, 40, 60],
+    "MOTHERSHIP_SAFE_ROW_Y": [135, 145, 155, 165],
+    "URGENT_FRAMES": [800, 1500, 3000, 6000, 1e9],
+    "MOTHERSHIP_MIN_MARGIN": [0, 800, 1500, 3000],
+    "POINTS_WEIGHT": [0.5, 1.0, 2.0],
 }
-def run(cfg, seeds):
-    for k, v in cfg.items(): setattr(st, k, v)
-    rows = diagnose(CodePlayer, seeds)
-    return float(np.mean([r["score"] for r in rows]))
-rng = random.Random(0)
-base = {k: getattr(st, k) for k in SPACE}
-configs = [base] + [{k: rng.choice(v) for k, v in SPACE.items()} for _ in range(int(sys.argv[1]))]
-seen, results = set(), []
-for cfg in configs:
-    key = tuple(sorted(cfg.items()))
-    if key in seen: continue
-    seen.add(key)
-    m = run(cfg, list(range(1, 61)))
-    results.append((m, cfg)); print(round(m), cfg, flush=True)
-results.sort(key=lambda r: -r[0])
-print("== confirm top 4 on seeds 61-99")
-for m, cfg in results[:4]:
-    print(round(m), round(run(cfg, list(range(61, 100)))), cfg, flush=True)
+
+
+def _play(args):
+    config, seed = args
+    for name, value in config.items():
+        setattr(st, name, value)
+    return diagnose_game((CodePlayer, seed))["score"]
+
+
+def score(pool, config, seeds):
+    return float(np.mean(pool.map(_play, [(config, s) for s in seeds], chunksize=4)))
+
+
+def main(count: int, processes: int) -> None:
+    rng = random.Random(0)
+    base = {name: getattr(st, name) for name in SPACE}
+    configs = [base] + [{k: rng.choice(v) for k, v in SPACE.items()} for _ in range(count)]
+    results = []
+    with Pool(processes) as pool:
+        for config in configs:
+            mean = score(pool, config, SEARCH_SEEDS)
+            results.append((mean, config))
+            print(round(mean), config, flush=True)
+        results.sort(key=lambda r: -r[0])
+        print("== confirm the top 5 on seeds 1-99")
+        for mean, config in results[:5]:
+            print(round(mean), round(score(pool, config, CONFIRM_SEEDS)), config, flush=True)
+
+
+if __name__ == "__main__":
+    main(int(sys.argv[1]), int(sys.argv[2]) if len(sys.argv) > 2 else os.cpu_count())

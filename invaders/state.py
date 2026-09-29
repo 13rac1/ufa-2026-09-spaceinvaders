@@ -47,6 +47,7 @@ FLEET_MIN_X, FLEET_MAX_X = 23, 50  # RAM[26] where the full-width fleet turns
 # tuning seeds), so a fleet without its outer columns travels further.
 LEFT_TURN_ALIEN_X, RIGHT_TURN_ALIEN_X = 27, 130
 PHASE_LEAD_BELOW = 5  # at this many aliens left or fewer, aim with the fleet's discrete moves
+URGENT_DROPS = 1  # within this many drops of invading, the lowest row comes first
 # Measured frame by frame on tuning seeds: (aliens left at least, frames per move,
 # pixels per move).
 FLEET_MOTION = (
@@ -220,7 +221,10 @@ def _choose_target(aliens, fleet, shot_x, shield_columns) -> tuple[int | None, b
     margin = _frames_to_invasion(lowest_y, fleet)
     bottom_row = [a for a in aliens if a["y"] >= lowest_y - 2]
     clear_bottom = [a for a in bottom_row if reachable(a)]
-    if fleet.get("outer_first"):
+    drops_left = (INVASION_Y - lowest_y) / DESCENT_PX
+    if URGENT_DROPS and drops_left <= URGENT_DROPS and clear_bottom:
+        pool = clear_bottom
+    elif fleet.get("outer_first"):
         # A fleet without its outer columns travels further before each descent.
         left, right = min(a["x"] for a in aliens), max(a["x"] for a in aliens)
         columns = {}

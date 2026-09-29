@@ -19,9 +19,10 @@ correlation of RAM bytes with screen positions):
   121 or 123 while a shot is stopped by a shield (a state code, not a position). The
   shot leaves one pixel right of the ship's center.
 - RAM[17]: aliens left. RAM[73]: lives. RAM[26]: fleet x. The fleet moves in jumps of
-  `step` pixels every `period` frames (see FLEET_MOTION) and turns at RAM[26] 23 and 50,
-  whichever columns survive. No RAM byte holds the direction or the move timer; both
-  are inferred from the observed motion in the previous decoded state.
+  `step` pixels every `period` frames (see FLEET_MOTION) and turns when its outermost
+  alien reaches screen x 27 or 130 (RAM[26] 23 and 50 for the full fleet). No RAM byte
+  holds the direction or the move timer; both are inferred from the observed motion in
+  the previous decoded state.
 - ship rows y 185 to 194; shields y 157 to 174; aliens 8 by 10 pixels.
 - mothership: drawn every frame at y 12 to 19, 7 pixels wide, colour (151, 25, 122);
   moves 0.25 pixels per frame without turning; 200 points. Read from the screen.

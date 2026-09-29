@@ -41,7 +41,14 @@ SHIP_HALF_WIDTH = 3  # the ship is 7 pixels wide
 SHIP_SPEED = 0.5  # pixels per frame
 SHOT_OFFSET = 1  # the shot's x is the ship's center plus this
 SHOT_SPEED = 2.0  # pixels per frame, upward
-FLEET_MIN_X, FLEET_MAX_X = 23, 50  # RAM[26] where the fleet turns
+FLEET_MIN_X, FLEET_MAX_X = 23, 50  # RAM[26] where the full-width fleet turns
+# The fleet turns when its outermost alien reaches these screen columns (measured on
+# tuning seeds), so a fleet without its outer columns travels further.
+LEFT_TURN_ALIEN_X, RIGHT_TURN_ALIEN_X = 27, 130
+# The code player's fleet model (v3) also uses the surviving columns for the turn points,
+# aims with the fleet's discrete moves at PHASE_LEAD_BELOW aliens left or fewer, and
+# shoots the lowest alien of an outer column first. The model views keep the v2 model.
+PHASE_LEAD_BELOW = 5
 # Measured frame by frame on tuning seeds: (aliens left at least, frames per move,
 # pixels per move).
 FLEET_MOTION = (
@@ -175,9 +182,10 @@ def _frames_to_invasion(lowest_y: float, fleet: dict) -> float:
     if descents <= 0:
         return 0.0
     speed = fleet["step"] / fleet["period"]
-    x = fleet.get("x", FLEET_MIN_X)
-    to_edge = (FLEET_MAX_X - x if fleet["dir"] > 0 else x - FLEET_MIN_X) / speed
-    return to_edge + (descents - 1) * (FLEET_MAX_X - FLEET_MIN_X) / speed
+    lo, hi = fleet.get("min_x", FLEET_MIN_X), fleet.get("max_x", FLEET_MAX_X)
+    x = fleet.get("x", lo)
+    to_edge = (hi - x if fleet["dir"] > 0 else x - lo) / speed
+    return to_edge + (descents - 1) * (hi - lo) / speed
 
 
 def _choose_target(aliens, fleet, shot_x, shield_columns) -> tuple[int | None, bool, float]:
@@ -202,7 +210,17 @@ def _choose_target(aliens, fleet, shot_x, shield_columns) -> tuple[int | None, b
     margin = _frames_to_invasion(lowest_y, fleet)
     bottom_row = [a for a in aliens if a["y"] >= lowest_y - 2]
     clear_bottom = [a for a in bottom_row if reachable(a)]
-    if margin < URGENT_FRAMES or not clear_bottom:
+    if fleet.get("outer_first"):
+        # A fleet without its outer columns travels further before each descent.
+        left, right = min(a["x"] for a in aliens), max(a["x"] for a in aliens)
+        columns = {}
+        for a in aliens:
+            if (a["x"] <= left + 4 or a["x"] >= right - 4) and reachable(a):
+                key = round(a["x"] / 8)
+                if key not in columns or a["y"] > columns[key]["y"]:
+                    columns[key] = a
+        pool = list(columns.values()) or clear_bottom
+    elif margin < URGENT_FRAMES or not clear_bottom:
         pool = clear_bottom
     else:
         rows = sorted({round(a["y"] / 6) for a in aliens}, reverse=True)  # bottom first
@@ -293,10 +311,20 @@ def _fleet_shift(fleet_x: int, fleet: dict, frames: float) -> float:
     Continuous at the fleet's average speed, so the aim point does not jump from one
     alien to the next as the move phase changes.
     """
+    lo, hi = fleet.get("min_x", FLEET_MIN_X), fleet.get("max_x", FLEET_MAX_X)
+    if fleet.get("left", 99) <= fleet.get("phase_below", 0):
+        moves = int((fleet.get("since_move", 0) + frames) // fleet["period"])
+        x, direction = fleet_x, fleet["dir"]
+        for _ in range(moves):
+            if not lo <= x + direction * fleet["step"] <= hi:
+                direction = -direction  # the fleet drops and turns instead of moving
+                continue
+            x += direction * fleet["step"]
+        return x - fleet_x
     speed = fleet["step"] / fleet["period"]
     x, direction, left = float(fleet_x), fleet["dir"], frames
     while left > 0:
-        edge = FLEET_MAX_X if direction > 0 else FLEET_MIN_X
+        edge = hi if direction > 0 else lo
         to_edge = abs(edge - x) / speed
         if to_edge >= left:
             return x + direction * speed * left - fleet_x
@@ -325,6 +353,10 @@ def decode(
     fleet_x = int(ram[26])
     fleet = _fleet_motion(fleet_x, int(ram[17]), previous, frames_elapsed)
     fleet["x"] = fleet_x
+    code_fleet = {**fleet, "outer_first": True, "phase_below": PHASE_LEAD_BELOW}
+    if aliens:
+        code_fleet["min_x"] = min(fleet_x, fleet_x - (min(a["x"] for a in aliens) - LEFT_TURN_ALIEN_X))
+        code_fleet["max_x"] = max(fleet_x, fleet_x + (RIGHT_TURN_ALIEN_X - max(a["x"] for a in aliens)))
     mothership = _mothership(screen, previous, frames_elapsed)
     shot_y = None if can_fire or ram[85] in SHOT_BLOCKED else 2 * int(ram[85]) + 4
     shot = {"x": _shot_x(screen) if shot_y is not None else None, "y": shot_y}
@@ -346,6 +378,11 @@ def decode(
             ship_x, bool(can_fire), aliens, bullets, shield_columns, fleet, mothership,
             shot,
         ),
+        "code_fleet": code_fleet,
+        "code_features": _features(
+            ship_x, bool(can_fire), aliens, bullets, shield_columns, code_fleet, mothership,
+            shot,
+        ),
     }
 
 
@@ -354,12 +391,13 @@ def _move_direction(action: int) -> int:
     return 1 if name.startswith("RIGHT") else -1 if name.startswith("LEFT") else 0
 
 
-def project_features(state: dict, frames: float, held_action: int) -> dict:
+def project_features(state: dict, frames: float, held_action: int, fleet_key: str = "fleet") -> dict:
     """Return the features of the state as it will be after the given frames.
 
     For a decider that knows its own latency: alien bullets fall, the fleet moves at
     its estimated velocity, and the ship moves with the action it holds meanwhile.
-    Whether the ship can fire is left as observed.
+    Whether the ship can fire is left as observed. fleet_key names the fleet model
+    ("fleet" for the model views, "code_fleet" for the code player).
     """
     ship_x = state["ship_x"] + _move_direction(held_action) * SHIP_SPEED * frames
     ship_x = int(round(min(max(ship_x, SHIP_MIN_X), SHIP_MAX_X)))
@@ -380,7 +418,7 @@ def project_features(state: dict, frames: float, held_action: int) -> dict:
         aliens,
         bullets,
         shield_columns,
-        {**state["fleet"], "x": state["fleet_x"] + shift},
+        {**state[fleet_key], "x": state["fleet_x"] + shift},
         state["mothership"],
         {"x": state["player_shot_x"], "y": state["player_shot_y"]},
     )

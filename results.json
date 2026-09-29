@@ -1470,6 +1470,41 @@
       "notes": "Tier 1, Qwen3.8 27B (Q4_K_M) through Ollama, thinking off, through the System One adapter",
       "cost_usd": 0.0,
       "run": 51
+    },
+    {
+      "seed": 102,
+      "score": 200.0,
+      "steps": 675,
+      "frames": 2699,
+      "lives_lost": 3,
+      "terminated": true,
+      "truncated": false,
+      "model_calls": 675,
+      "input_tokens": 280009,
+      "output_tokens": 55321,
+      "latency_ms_p50": 2492.4897180171683,
+      "latency_ms_p95": 3071.211414190475,
+      "latency_ms_total": 1699649.5530982793,
+      "errors_by_status": {
+        "200": 11
+      },
+      "retries": 0,
+      "fallback_actions": 11,
+      "wall_clock_s": 1700.9913233609986,
+      "served_model": "qwen3.8:latest",
+      "player": "qwen-t1",
+      "player_version": "q3",
+      "mode": "turn",
+      "added_delay_ms": 0.0,
+      "decisions": 675,
+      "max_steps": null,
+      "mean_confidence": 0.8454369010053142,
+      "low_conf_rate": 0.18674698795180722,
+      "input_tier": 1,
+      "question_version": 3,
+      "notes": "Tier 1, Qwen3.8 27B (Q4_K_M) through Ollama, thinking off, through the System One adapter",
+      "cost_usd": 0.0,
+      "run": 52
     }
   ],
   "baseline": {

@@ -1791,6 +1791,41 @@
       "notes": "Tier 3 reference: question v8, the code player's v3 verdicts and rules",
       "cost_usd": 0.152063,
       "run": 60
+    },
+    {
+      "seed": 105,
+      "score": 105.0,
+      "steps": 488,
+      "frames": 1951,
+      "lives_lost": 3,
+      "terminated": true,
+      "truncated": false,
+      "model_calls": 488,
+      "input_tokens": 201895,
+      "output_tokens": 39894,
+      "latency_ms_p50": 2434.3521229893668,
+      "latency_ms_p95": 3077.045230206567,
+      "latency_ms_total": 1205511.6740568774,
+      "errors_by_status": {
+        "200": 12
+      },
+      "retries": 0,
+      "fallback_actions": 12,
+      "wall_clock_s": 1206.4677998390107,
+      "served_model": "qwen3.8:latest",
+      "player": "qwen-t1",
+      "player_version": "q3",
+      "mode": "turn",
+      "added_delay_ms": 0.0,
+      "decisions": 488,
+      "max_steps": null,
+      "mean_confidence": 0.8747357970693769,
+      "low_conf_rate": 0.14705882352941177,
+      "input_tier": 1,
+      "question_version": 3,
+      "notes": "Tier 1, Qwen3.8 27B (Q4_K_M) through Ollama, thinking off, through the System One adapter",
+      "cost_usd": 0.0,
+      "run": 61
     }
   ],
   "baseline": {

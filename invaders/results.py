@@ -37,7 +37,7 @@ def is_baseline(player: str) -> bool:
 
 def cost_usd(record: dict, provider: str | None) -> float | None:
     """Cost of a run from its token counts and PRICES; None when the price is unknown."""
-    if provider in ("none", "laya", "local"):
+    if provider in ("none", "local"):
         return 0.0  # code, or a model on a local server
     price = PRICES.get(provider or "")
     if price is None:

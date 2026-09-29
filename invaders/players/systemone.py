@@ -1,4 +1,4 @@
-"""A player backed by a System One wire-protocol model: JEV or Laya."""
+"""A player backed by a System One wire-protocol model (JEV)."""
 
 import json
 import os
@@ -25,8 +25,7 @@ class SystemOnePlayer:
     """Asks one "action" choice question over the System One wire protocol.
 
     Works for any server that implements POST <base_url>/v1/systemone with the
-    JEV request and response shape, including Laya, which serves the same
-    protocol.
+    JEV request and response shape.
     """
 
     def __init__(
@@ -39,11 +38,10 @@ class SystemOnePlayer:
         confidence_threshold: float | None = None,
         timeout_s: float = 5.0,
         max_outage_s: float = MAX_OUTAGE_S,
-        api_key_required: bool = True,
         transport: httpx.BaseTransport | None = None,
         tier: int = 2,
     ) -> None:
-        if api_key_env and api_key_required and not os.environ.get(api_key_env):
+        if api_key_env and not os.environ.get(api_key_env):
             raise MissingAPIKeyError(
                 f"the {name!r} player requires the {api_key_env} environment "
                 "variable to be set"
@@ -114,7 +112,7 @@ class SystemOnePlayer:
         if answer is None or answer.get("choice") not in ACTIONS:
             return self._fallback(previous_action, model_calls, retries, None)
 
-        confidence = answer.get("answer_confidence", answer.get("confidence"))
+        confidence = answer.get("confidence")
         if self._confidence_threshold is not None and (
             confidence is None or confidence < self._confidence_threshold
         ):

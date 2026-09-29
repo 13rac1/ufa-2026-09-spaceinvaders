@@ -1,1 +1,1 @@
-"""Space Invaders benchmark: deterministic code, JEV, Laya and an LLM on one harness."""
+"""Space Invaders benchmark: deterministic code, JEV and LLMs on one harness."""

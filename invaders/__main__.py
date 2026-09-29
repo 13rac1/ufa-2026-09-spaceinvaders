@@ -50,26 +50,6 @@ PLAYERS = {
         provider="typesafe",
         tier=3,
     ),
-    "laya-t1": functools.partial(
-        SystemOnePlayer,
-        name="laya-t1",
-        base_url=os.environ.get("LAYA_BASE_URL", "http://localhost:8000"),
-        model="english",
-        api_key_env="LAYA_API_KEY",
-        provider="laya",
-        api_key_required=False,
-        tier=1,
-    ),
-    "laya-t2": functools.partial(
-        SystemOnePlayer,
-        name="laya-t2",
-        base_url=os.environ.get("LAYA_BASE_URL", "http://localhost:8000"),
-        model="english",
-        api_key_env="LAYA_API_KEY",
-        provider="laya",
-        api_key_required=False,
-        tier=2,
-    ),
     "llm-t1": functools.partial(LLMPlayer, name="llm-t1", tier=1),
     # Qwen on a local OpenAI-compatible server (LLM_BASE_URL, LLM_PROVIDER=openai, LLM_MODEL,
     # LLM_REASONING_EFFORT=none): an extra LLM row, free to run.
@@ -81,7 +61,6 @@ PLAYERS = {
 # The sdk_package/sdk_version recorded in a run's model entry, per player.
 SDK_PACKAGES = {
     **{f"jev-t{t}": "httpx" for t in (1, 2, 3)},
-    **{f"laya-t{t}": "httpx" for t in (1, 2)},
     **{f"llm-t{t}": "system-one-adapter" for t in (1, 2)},
     **{f"qwen-t{t}": "system-one-adapter" for t in (1, 2)},
 }
@@ -277,7 +256,7 @@ def bench_command(args: argparse.Namespace) -> int:
             continue
 
         if args.max_cost_usd is not None:
-            free = getattr(player, "provider", "none") in ("none", "laya", "local")
+            free = getattr(player, "provider", "none") in ("none", "local")
             next_game = dearest_game.get(game.player, 0.0 if free else DEFAULT_GAME_COST_USD)
             if spent + next_game > args.max_cost_usd:
                 print(

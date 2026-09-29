@@ -9,7 +9,7 @@ FAIR_EVALUATION.md):
   code player's rules in the criteria. A labelled reference row only: at this tier the
   code decides and the model looks up the answer.
 
-JEV, Laya and the LLM receive the same request at the same tier. Keep the wording here,
+JEV and the LLMs receive the same request at the same tier. Keep the wording here,
 in one place.
 """
 

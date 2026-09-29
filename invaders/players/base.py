@@ -23,8 +23,8 @@ class Decision:
 
 
 class Player(Protocol):
-    name: str  # for example "random", "code", "jev", "laya", "llm"
-    provider: str  # "none", "typesafe", "laya", "anthropic", ...
+    name: str  # for example "random", "code", "jev", "llm"
+    provider: str  # "none", "typesafe", "anthropic", ...
     requested_model: str | None
 
     def reset(self, seed: int) -> None:

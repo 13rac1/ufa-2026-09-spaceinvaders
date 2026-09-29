@@ -73,19 +73,6 @@ def test_missing_required_api_key_raises_before_any_request(monkeypatch):
         )
 
 
-def test_optional_api_key_does_not_raise_when_unset(monkeypatch):
-    monkeypatch.delenv("LAYA_API_KEY", raising=False)
-    player = SystemOnePlayer(
-        name="laya",
-        base_url="http://localhost:8000",
-        model="english",
-        api_key_env="LAYA_API_KEY",
-        provider="laya",
-        api_key_required=False,
-    )
-    assert player.name == "laya"
-
-
 def test_successful_call_returns_mapped_action_and_usage():
     def handler(request: httpx.Request) -> httpx.Response:
         assert request.url.path == "/v1/systemone"
@@ -158,22 +145,6 @@ def test_low_confidence_falls_back():
     assert decision.fallback is True
     assert decision.action == RIGHTFIRE
     assert decision.confidence == 0.4
-
-
-def test_laya_prefers_answer_confidence_over_confidence():
-    def handler(request: httpx.Request) -> httpx.Response:
-        return httpx.Response(
-            200,
-            json=_choice_response(
-                choice="NOOP", confidence=0.5, extra_answer={"answer_confidence": 0.93}
-            ),
-        )
-
-    player = make_player(handler, name="laya", provider="laya")
-    decision = player.decide(state=FAKE_STATE, previous_action=FIRE)
-
-    assert decision.action == NOOP
-    assert decision.confidence == 0.93
 
 
 def test_network_error_retries_then_falls_back():

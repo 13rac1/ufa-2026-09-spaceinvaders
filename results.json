@@ -35,6 +35,15 @@
       "served_model": "claude-haiku-4-5",
       "sdk_package": "system-one-adapter",
       "sdk_version": "0.2.1",
+      "player": "llm-t2"
+    },
+    {
+      "role": "baseline",
+      "provider": "anthropic",
+      "requested_model": "claude-haiku-4-5",
+      "served_model": "claude-haiku-4-5",
+      "sdk_package": "system-one-adapter",
+      "sdk_version": "0.2.1",
       "player": "llm-t1"
     },
     {
@@ -2127,6 +2136,39 @@
         "notes": "Tier 1 question v3, claude-haiku-4-5 through the System One adapter",
         "cost_usd": 0.835625,
         "run": 50
+      },
+      {
+        "seed": 102,
+        "score": 15.0,
+        "steps": 295,
+        "frames": 1177,
+        "lives_lost": 3,
+        "terminated": true,
+        "truncated": false,
+        "model_calls": 295,
+        "input_tokens": 337936,
+        "output_tokens": 16036,
+        "latency_ms_p50": 1114.4224430026952,
+        "latency_ms_p95": 1754.2206961021295,
+        "latency_ms_total": 370527.554561937,
+        "errors_by_status": {},
+        "retries": 0,
+        "fallback_actions": 0,
+        "wall_clock_s": 371.28563662499073,
+        "served_model": "claude-haiku-4-5",
+        "player": "llm-t2",
+        "player_version": "q7",
+        "mode": "turn",
+        "added_delay_ms": 0.0,
+        "decisions": 295,
+        "max_steps": null,
+        "mean_confidence": 0.4657007263922518,
+        "low_conf_rate": 0.5864406779661017,
+        "input_tier": 2,
+        "question_version": 7,
+        "notes": "Tier 2 question v7 (v3 fleet model), claude-haiku-4-5 through the System One adapter",
+        "cost_usd": 0.418116,
+        "run": 66
       }
     ]
   }

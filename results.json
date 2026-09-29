@@ -36,6 +36,15 @@
       "sdk_package": null,
       "sdk_version": null,
       "player": "always-fire"
+    },
+    {
+      "role": "decider",
+      "provider": "local",
+      "requested_model": "qwen3.8:latest",
+      "served_model": "qwen3.8:latest",
+      "sdk_package": "system-one-adapter",
+      "sdk_version": "0.2.1",
+      "player": "qwen-t1"
     }
   ],
   "config": {
@@ -1426,6 +1435,41 @@
       "notes": "floor: presses FIRE every step",
       "cost_usd": 0.0,
       "run": 45
+    },
+    {
+      "seed": 101,
+      "score": 105.0,
+      "steps": 486,
+      "frames": 1941,
+      "lives_lost": 3,
+      "terminated": true,
+      "truncated": false,
+      "model_calls": 486,
+      "input_tokens": 206620,
+      "output_tokens": 39586,
+      "latency_ms_p50": 4896.235983003862,
+      "latency_ms_p95": 5913.08817800018,
+      "latency_ms_total": 2413639.883595737,
+      "errors_by_status": {
+        "200": 8
+      },
+      "retries": 0,
+      "fallback_actions": 8,
+      "wall_clock_s": 2415.0060562409926,
+      "served_model": "qwen3.8:latest",
+      "player": "qwen-t1",
+      "player_version": "q3",
+      "mode": "turn",
+      "added_delay_ms": 0.0,
+      "decisions": 486,
+      "max_steps": null,
+      "mean_confidence": 0.8532310393709166,
+      "low_conf_rate": 0.17782426778242677,
+      "input_tier": 1,
+      "question_version": 3,
+      "notes": "Tier 1, Qwen3.8 27B (Q4_K_M) through Ollama, thinking off, through the System One adapter",
+      "cost_usd": 0.0,
+      "run": 51
     }
   ],
   "baseline": {

@@ -79,8 +79,8 @@ def test_report_summary_table_has_expected_numbers(tmp_path):
     generate_report(results_path, out_dir)
 
     readme = (out_dir / "README.md").read_text()
-    assert (out_dir / "latency_curve.png").exists()
-    assert (out_dir / "latency_curve.png").stat().st_size > 0
+    assert not (out_dir / "latency_curve.png").exists()  # no realtime runs, no chart
+    assert "## Latency curve" not in readme
 
     assert "This file is generated" in readme
 
@@ -150,3 +150,11 @@ def test_head_to_head_omitted_cleanly_when_llm_absent(tmp_path):
     section = readme.split("Head-to-head")[1].split("##")[0]
     assert "No head-to-head: llm-t2 has no turn-mode runs." in section
     assert "| seed |" not in section
+
+
+def test_report_draws_the_latency_curve_when_realtime_runs_exist(tmp_path):
+    runs = [make_record("code", "turn", 101, 100.0), make_record("code", "realtime", 101, 90.0)]
+    results_path = tmp_path / "results.json"
+    results_path.write_text(json.dumps(make_results(runs)))
+    generate_report(results_path, tmp_path / "report")
+    assert (tmp_path / "report" / "latency_curve.png").stat().st_size > 0

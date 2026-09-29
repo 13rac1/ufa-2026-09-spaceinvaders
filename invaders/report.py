@@ -395,9 +395,20 @@ python -m invaders report --out report/
 ```"""
 
 
+def has_realtime(records: list[dict]) -> bool:
+    return any(r["mode"] == "realtime" for r in records)
+
+
 def build_readme(results: dict) -> str:
     """Build the full README.md text from a loaded results.json."""
     records = all_records(results)
+    realtime = [
+        "## Turn versus realtime\n\n" + build_turn_vs_realtime(records),
+        "## Latency curve\n\n"
+        + build_latency_table(records)
+        + "\n\nSee `latency_curve.png` for the chart.\n\n"
+        "![Latency curve](latency_curve.png)",
+    ] if has_realtime(records) else []
 
     return "\n\n".join(
         [
@@ -410,11 +421,7 @@ def build_readme(results: dict) -> str:
             + build_head_to_head(records, "jev-t2", "llm-t2"),
             "## Head-to-head at Tier 1: jev-t1 vs. llm-t1 (mode turn)\n\n"
             + build_head_to_head(records, "jev-t1", "llm-t1"),
-            "## Turn versus realtime\n\n" + build_turn_vs_realtime(records),
-            "## Latency curve\n\n"
-            + build_latency_table(records)
-            + "\n\nSee `latency_curve.png` for the chart.\n\n"
-            "![Latency curve](latency_curve.png)",
+            *realtime,
             "## Version history (turn mode)\n\nThe tables above use each player's "
             "latest version.\n\n" + build_version_history(results),
             "## How to regenerate\n\n" + REGENERATE_BLOCK,
@@ -493,7 +500,7 @@ def plot_latency_curve(results: dict, out_path: Path) -> None:
 
 
 def generate_report(results_path: Path, out_dir: Path) -> None:
-    """Read results_path and write README.md and latency_curve.png into out_dir."""
+    """Read results_path and write README.md, and latency_curve.png when realtime runs exist."""
     results = load_results(Path(results_path))
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -501,4 +508,5 @@ def generate_report(results_path: Path, out_dir: Path) -> None:
     readme_text = build_readme(results)
     (out_dir / "README.md").write_text(readme_text)
 
-    plot_latency_curve(results, out_dir / "latency_curve.png")
+    if has_realtime(all_records(results)):
+        plot_latency_curve(results, out_dir / "latency_curve.png")

@@ -142,7 +142,7 @@ def test_decide_sends_a_choice_question_named_action(monkeypatch):
 def test_local_endpoint_needs_no_hosted_key(monkeypatch):
     for name in ("ANTHROPIC_API_KEY", "OPENAI_API_KEY"):
         monkeypatch.delenv(name, raising=False)
-    monkeypatch.setenv("LLM_BASE_URL", "http://gpu-host:8000/v1")
+    monkeypatch.setenv("LLM_BASE_URL", "http://model-host:8000/v1")
     monkeypatch.setenv("LLM_PROVIDER", "openai")
     monkeypatch.setenv("LLM_MODEL", "qwen")
     from system_one_adapter.providers.openai import OpenAIProvider

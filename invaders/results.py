@@ -22,6 +22,11 @@ PRICES = {
         "output_per_mtok_usd": 0.0,
         "source": "https://docs.typesafe.ai/models.md (2026-09-28)",
     },
+    "anthropic": {
+        "input_per_mtok_usd": 1.0,
+        "output_per_mtok_usd": 5.0,
+        "source": "claude-haiku-4-5, Anthropic model price table (cached 2026-09-25)",
+    },
 }
 
 

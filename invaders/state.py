@@ -438,3 +438,37 @@ def tier2_view(state: dict) -> dict:
         "other_aliens": len(aliens) - len(bottom),
         "mothership": mothership,
     }
+
+
+def tier2_compact_view(state: dict) -> dict:
+    """Tier 2 v6: the Tier 2 facts, filtered and grouped for a literal reader.
+
+    The same exact facts as tier2_view, less what cannot matter: bullets that a shield
+    will stop are left out, and the aliens of the lowest row are grouped by side, as
+    offsets at the moment a shot fired now would reach them. Aliens behind a shield
+    are listed apart, because a shot cannot reach them. No verdicts.
+    """
+    view = tier2_view(state)
+    aliens = {"left": [], "over_ship": [], "right": []}
+    shielded = []
+    for alien in view["lowest_row_aliens"]:
+        if alien["behind_shield"]:
+            shielded.append(alien["dx_at_shot_arrival"])
+        else:
+            aliens[alien["side"]].append(alien["dx_at_shot_arrival"])
+    mothership = view["mothership"]
+    return {
+        "gun_ready": view["gun_ready"],
+        "room_to_move_px": view["room_to_move_px"],
+        "bullets": [
+            {k: b[k] for k in ("lane", "arrival", "dx", "frames_to_ship_row")}
+            for b in view["alien_bullets"]
+            if not b["stopped_by_shield"]
+        ],
+        "aliens": aliens,
+        "aliens_behind_shields": shielded,
+        "mothership": (
+            {"side": mothership["side"], "dx": mothership["dx_at_shot_arrival"]}
+            if mothership else None
+        ),
+    }

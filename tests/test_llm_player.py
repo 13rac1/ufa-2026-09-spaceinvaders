@@ -142,3 +142,19 @@ def test_local_endpoint_needs_no_hosted_key(monkeypatch):
     player = LLMPlayer()
     assert isinstance(player._model_arg, OpenAIProvider)
     assert player._model_arg.model_name == "qwen"
+
+
+def test_timeout_without_status_falls_back(monkeypatch):
+    """A timeout error has no status attribute; the game must continue."""
+    from typesafe_sdk import TypeSafeError
+
+    class Timeout(TypeSafeError):
+        def __init__(self):
+            Exception.__init__(self, "timed out")
+
+    def raise_timeout(*args, **kwargs):
+        raise Timeout()
+
+    player = make_player(monkeypatch, raise_timeout)
+    decision = player.decide(FAKE_STATE, previous_action=3)
+    assert decision.action == 3 and decision.fallback and decision.error_status is None

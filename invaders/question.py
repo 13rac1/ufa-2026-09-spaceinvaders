@@ -123,3 +123,97 @@ def build_questions(tier: int) -> dict:
             "criteria": {name: criteria[name] for name in ACTIONS},
         }
     }
+
+
+# Tier 2 v6: a stated goal, field definitions, and each action by its effect, as
+# structured objects (JEV accepts objects for instructions and options). Options that do
+# nothing in the current state are left out: a move into a wall, a shot while one flies.
+V6_INSTRUCTIONS = {
+    "goal": (
+        "Score by shooting aliens, and keep the ship from being hit. A shot hits an alien "
+        "only if the alien is in `aliens.over_ship`. A bullet whose lane is over_ship when "
+        "it arrives destroys the ship."
+    ),
+    "fields": {
+        "dx": "px from the ship, negative to the left; for aliens, where the alien will be "
+        "when a shot fired now reaches its row",
+        "lane": "where a bullet falls relative to the ship: left, over_ship, right",
+        "arrival": "when a bullet reaches the ship's rows: now 0-8 frames, soon 9-30, far",
+        "room_to_move_px": "px the ship can still move each way",
+        "gun_ready": "a shot can be fired now; one shot flies at a time",
+        "aliens_behind_shields": "a shot cannot reach these",
+    },
+}
+
+_MOVE_EFFECT = {
+    "stay": "The ship stays; every dx and lane stays the same.",
+    "right": (
+        "The ship moves 2 px right: every dx drops by 2, so aliens and bullets on the right "
+        "come closer to over_ship and those on the left move away."
+    ),
+    "left": (
+        "The ship moves 2 px left: every dx rises by 2, so aliens and bullets on the left "
+        "come closer to over_ship and those on the right move away."
+    ),
+}
+_FIRE_EFFECT = "A shot rises from the ship; it hits the alien in `aliens.over_ship`, if any."
+
+
+def _allowed(view: dict) -> tuple[list[str], bool]:
+    moves = ["stay"]
+    if view["room_to_move_px"]["left"] > 0:
+        moves.append("left")
+    if view["room_to_move_px"]["right"] > 0:
+        moves.append("right")
+    return moves, view["gun_ready"]
+
+
+def build_v6_questions(view: dict, split: bool) -> dict:
+    """The Tier 2 v6 questions for a compact view: one six-way choice, or split in two.
+
+    Split: a move question (left, stay, right) and, when the gun is ready, a fire
+    question (yes, no). Each pair of answers is exactly one action; no priority applies.
+    """
+    moves, can_fire = _allowed(view)
+    if split:
+        questions = {
+            "move": {
+                "type": "choice",
+                "instructions": {**V6_INSTRUCTIONS, "question": "Which way should the ship move now?"},
+                "criteria": {m: {"effect": _MOVE_EFFECT[m]} for m in moves},
+            }
+        }
+        if can_fire:
+            questions["fire"] = {
+                "type": "choice",
+                "instructions": {**V6_INSTRUCTIONS, "question": "Should the ship fire now?"},
+                "criteria": {
+                    "yes": {"effect": _FIRE_EFFECT},
+                    "no": {"effect": "No shot; the gun stays ready."},
+                },
+            }
+        return questions
+    options = {}
+    for move in moves:
+        name = {"stay": "NOOP", "left": "LEFT", "right": "RIGHT"}[move]
+        options[name] = {"effect": _MOVE_EFFECT[move] + " No shot."}
+        if can_fire:
+            fire_name = {"stay": "FIRE", "left": "LEFTFIRE", "right": "RIGHTFIRE"}[move]
+            options[fire_name] = {"effect": _MOVE_EFFECT[move] + " " + _FIRE_EFFECT}
+    return {
+        "action": {
+            "type": "choice",
+            "instructions": {**V6_INSTRUCTIONS, "question": "Which action should the ship take now?"},
+            "criteria": options,
+        }
+    }
+
+
+def split_answers_to_action(move: str, fire: str | None) -> str:
+    """The one action that a move answer and a fire answer name together."""
+    fires = fire == "yes"
+    return {
+        ("stay", False): "NOOP", ("stay", True): "FIRE",
+        ("left", False): "LEFT", ("left", True): "LEFTFIRE",
+        ("right", False): "RIGHT", ("right", True): "RIGHTFIRE",
+    }[(move, fires)]

@@ -98,11 +98,13 @@ class LLMPlayer:
         except Exception as error:  # noqa: BLE001 - a failed call must not end the game
             # TypeSafeError carries the HTTP status; provider SDK and network errors
             # may not. Either way the previous action is held and counted.
-            status = error.status if isinstance(error, TypeSafeError) else None
+            # Not every error carries an HTTP status: a timeout or a dropped connection
+            # has none, and must still hold the previous action, not end the game.
+            status = getattr(error, "status", None) or getattr(error, "status_code", None)
             return Decision(
                 action=previous_action,
                 model_calls=1,
-                error_status=getattr(error, "status_code", status),
+                error_status=status,
                 fallback=True,
             )
 

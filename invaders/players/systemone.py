@@ -1,28 +1,24 @@
 """A player backed by a System One wire-protocol model: JEV or Laya."""
 
+import json
 import os
-import time
 
 import httpx
 
 from invaders.players.base import Decision
-import json
-
+from invaders.players.retry import (
+    MAX_OUTAGE_S,
+    TRANSIENT_STATUSES,
+    TransientStatus,
+    call_with_retry,
+    status_of,
+)
 from invaders.question import QUESTION_VERSIONS, build_questions, build_request_state
 from invaders.state import ACTIONS
-
-RETRY_STATUSES = (429, 529)
-BACKOFF_BASE_S = 0.2
-BACKOFF_MAX_S = 0.5
 
 
 class MissingAPIKeyError(RuntimeError):
     """Raised at construction when a required API key environment variable is unset."""
-
-
-def _backoff_s(retry_number: int) -> float:
-    """Backoff before the given retry (1-based); sum stays under about 1 s."""
-    return min(BACKOFF_BASE_S * 2 ** (retry_number - 1), BACKOFF_MAX_S)
 
 
 class SystemOnePlayer:
@@ -42,7 +38,7 @@ class SystemOnePlayer:
         provider: str,
         confidence_threshold: float | None = None,
         timeout_s: float = 5.0,
-        max_retries: int = 2,
+        max_outage_s: float = MAX_OUTAGE_S,
         api_key_required: bool = True,
         transport: httpx.BaseTransport | None = None,
         tier: int = 2,
@@ -62,7 +58,7 @@ class SystemOnePlayer:
         self._api_key_env = api_key_env
         self._confidence_threshold = confidence_threshold
         self._timeout_s = timeout_s
-        self._max_retries = max_retries
+        self._max_outage_s = max_outage_s
         # transport is a test seam (see httpx.MockTransport); production callers
         # leave it unset and get the real network.
         self._client = httpx.Client(transport=transport)
@@ -86,34 +82,24 @@ class SystemOnePlayer:
         headers = self._headers()
         url = f"{self._base_url}/v1/systemone"
 
-        retries = 0
-        model_calls = 0
-        error_status = None
-        response = None
-        while True:
-            model_calls = 1  # one model call per decision; each extra attempt is a retry
-            try:
-                # Compact JSON: the model is billed per input token.
-                response = self._client.post(
-                    url,
-                    content=json.dumps(body, separators=(",", ":")),
-                    headers=headers,
-                    timeout=self._timeout_s,
-                )
-            except httpx.HTTPError:
-                error_status = None
-                if retries >= self._max_retries:
-                    return self._fallback(previous_action, model_calls, retries, error_status)
-                retries += 1
-                time.sleep(_backoff_s(retries))
-                continue
+        def post() -> httpx.Response:
+            # Compact JSON: the model is billed per input token.
+            response = self._client.post(
+                url,
+                content=json.dumps(body, separators=(",", ":")),
+                headers=headers,
+                timeout=self._timeout_s,
+            )
+            if response.status_code in TRANSIENT_STATUSES:
+                raise TransientStatus(response.status_code)
+            return response
 
-            if response.status_code in RETRY_STATUSES and retries < self._max_retries:
-                error_status = response.status_code
-                retries += 1
-                time.sleep(_backoff_s(retries))
-                continue
-            break
+        model_calls = 1  # one model call per decision; each extra attempt is a retry
+        try:
+            response, retries = call_with_retry(post, max_outage_s=self._max_outage_s)
+        except Exception as error:  # noqa: BLE001 - a failed call must not end the game
+            # A permanent failure, or an outage longer than max_outage_s.
+            return self._fallback(previous_action, model_calls, 0, status_of(error))
 
         if response.status_code != 200:
             return self._fallback(

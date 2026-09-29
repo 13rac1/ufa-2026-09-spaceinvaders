@@ -55,11 +55,21 @@ def _response(choice="FIRE", confidence=0.85, model="claude-haiku-4-5", **usage_
     return SimpleNamespace(answers={"action": answer}, model=model, usage=_usage(**usage_kwargs))
 
 
+class _FakeClient:
+    """Stands in for the adapter client so a test never reaches the network."""
+
+    def __init__(self, system_one_fn):
+        self.system_one = system_one_fn
+
+    def close(self):
+        pass
+
+
 def make_player(monkeypatch, system_one_fn):
     monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
-    player = LLMPlayer()
-    monkeypatch.setattr(player._client, "system_one", system_one_fn)
-    return player
+    monkeypatch.setattr(LLMPlayer, "_new_client", staticmethod(lambda: _FakeClient(system_one_fn)))
+    monkeypatch.setattr("invaders.players.retry.time.sleep", lambda s: None)
+    return LLMPlayer(max_outage_s=5)
 
 
 def test_missing_api_key_raises_before_building_a_client(monkeypatch):
@@ -144,17 +154,30 @@ def test_local_endpoint_needs_no_hosted_key(monkeypatch):
     assert player._model_arg.model_name == "qwen"
 
 
-def test_timeout_without_status_falls_back(monkeypatch):
-    """A timeout error has no status attribute; the game must continue."""
-    from typesafe_sdk import TypeSafeError
+def test_outage_is_retried_until_the_connection_returns(monkeypatch):
+    """Timeouts and dropped connections cost time, not a decision."""
+    from typesafe_sdk import TypeSafeAPITimeoutError
 
-    class Timeout(TypeSafeError):
-        def __init__(self):
-            Exception.__init__(self, "timed out")
+    calls = {"n": 0}
+    ok = _response("RIGHT", 0.9)
 
-    def raise_timeout(*args, **kwargs):
-        raise Timeout()
+    def flaky(*args, **kwargs):
+        calls["n"] += 1
+        if calls["n"] <= 3:
+            raise TypeSafeAPITimeoutError("timed out")
+        return ok
 
-    player = make_player(monkeypatch, raise_timeout)
+    player = make_player(monkeypatch, flaky)
+    decision = player.decide(FAKE_STATE, previous_action=3)
+    assert calls["n"] == 4 and not decision.fallback and decision.retries >= 3
+
+
+def test_outage_longer_than_the_limit_falls_back(monkeypatch):
+    from typesafe_sdk import TypeSafeAPITimeoutError
+
+    def always_timeout(*args, **kwargs):
+        raise TypeSafeAPITimeoutError("timed out")
+
+    player = make_player(monkeypatch, always_timeout)
     decision = player.decide(FAKE_STATE, previous_action=3)
     assert decision.action == 3 and decision.fallback and decision.error_status is None

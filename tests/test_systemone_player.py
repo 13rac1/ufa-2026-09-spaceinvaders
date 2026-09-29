@@ -8,6 +8,12 @@ from invaders.state import ACTIONS
 
 NOOP, FIRE, RIGHT, LEFT, RIGHTFIRE, LEFTFIRE = range(len(ACTIONS))
 
+
+@pytest.fixture(autouse=True)
+def no_waiting(monkeypatch):
+    """Retries back off with sleep; the tests do not wait."""
+    monkeypatch.setattr("invaders.players.retry.time.sleep", lambda seconds: None)
+
 FAKE_STATE = {
     "ship_x": 60,
     "aliens": [{"x": 40, "y": 30}],
@@ -108,7 +114,7 @@ def test_rate_limit_then_success_counts_one_retry():
             return httpx.Response(429, json={"error": "rate limited"})
         return httpx.Response(200, json=_choice_response(choice="LEFT"))
 
-    player = make_player(handler, max_retries=2)
+    player = make_player(handler, max_outage_s=5)
     decision = player.decide(state=FAKE_STATE, previous_action=NOOP)
 
     assert decision.action == LEFT
@@ -121,13 +127,12 @@ def test_permanent_failure_falls_back_to_previous_action_with_error_status():
     def handler(request: httpx.Request) -> httpx.Response:
         return httpx.Response(529, json={"error": "overloaded"})
 
-    player = make_player(handler, max_retries=2)
+    player = make_player(handler, max_outage_s=5)
     decision = player.decide(state=FAKE_STATE, previous_action=RIGHT)
 
     assert decision.fallback is True
     assert decision.action == RIGHT
     assert decision.error_status == 529
-    assert decision.retries == 2
     assert decision.model_calls == 1
 
 
@@ -175,11 +180,42 @@ def test_network_error_retries_then_falls_back():
     def handler(request: httpx.Request) -> httpx.Response:
         raise httpx.ConnectError("boom", request=request)
 
-    player = make_player(handler, max_retries=1)
+    player = make_player(handler, max_outage_s=5)
     decision = player.decide(state=FAKE_STATE, previous_action=FIRE)
 
     assert decision.fallback is True
     assert decision.action == FIRE
     assert decision.error_status is None
-    assert decision.retries == 1
     assert decision.model_calls == 1
+
+
+def test_bad_request_falls_back_without_retrying():
+    calls = {"n": 0}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls["n"] += 1
+        return httpx.Response(400, json={"error": "bad request"})
+
+    player = make_player(handler, max_outage_s=5)
+    decision = player.decide(state=FAKE_STATE, previous_action=FIRE)
+
+    assert calls["n"] == 1
+    assert decision.fallback is True
+    assert decision.error_status == 400
+
+
+def test_connection_drop_is_retried_until_it_returns():
+    calls = {"n": 0}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls["n"] += 1
+        if calls["n"] <= 4:
+            raise httpx.ConnectError("no route to host", request=request)
+        return httpx.Response(200, json=_choice_response(choice="LEFT"))
+
+    player = make_player(handler, max_outage_s=600)
+    decision = player.decide(state=FAKE_STATE, previous_action=FIRE)
+
+    assert decision.action == LEFT
+    assert decision.fallback is False
+    assert decision.retries == 4

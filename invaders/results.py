@@ -38,7 +38,7 @@ def is_baseline(player: str) -> bool:
 def cost_usd(record: dict, provider: str | None) -> float | None:
     """Cost of a run from its token counts and PRICES; None when the price is unknown."""
     if provider in ("none", "laya", "local"):
-        return 0.0  # code, or a model served on our own hardware
+        return 0.0  # code, or a model on a local server
     price = PRICES.get(provider or "")
     if price is None:
         return None
@@ -195,6 +195,10 @@ def record_and_commit(
             ["git", "commit", "-m", message, "--", RESULTS_FILENAME], cwd=repo_dir, check=True
         )
         if push:
-            subprocess.run(["git", "push"], cwd=repo_dir, check=True)
+            # The game is committed; a push that fails (no network) is not fatal: the
+            # next successful push carries every commit.
+            pushed = subprocess.run(["git", "push", "-q"], cwd=repo_dir)
+            if pushed.returncode != 0:
+                print(f"warning: git push failed; run {run_number} is committed locally")
 
     return results

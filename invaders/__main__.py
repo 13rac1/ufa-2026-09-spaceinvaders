@@ -71,6 +71,10 @@ PLAYERS = {
         tier=2,
     ),
     "llm-t1": functools.partial(LLMPlayer, name="llm-t1", tier=1),
+    # Qwen on a local OpenAI-compatible server (LLM_BASE_URL, LLM_PROVIDER=openai, LLM_MODEL,
+    # LLM_REASONING_EFFORT=none): an extra LLM row, free to run.
+    "qwen-t1": functools.partial(LLMPlayer, name="qwen-t1", tier=1),
+    "qwen-t2": functools.partial(LLMPlayer, name="qwen-t2", tier=2),
     "llm-t2": functools.partial(LLMPlayer, name="llm-t2", tier=2),
 }
 
@@ -79,6 +83,7 @@ SDK_PACKAGES = {
     **{f"jev-t{t}": "httpx" for t in (1, 2, 3)},
     **{f"laya-t{t}": "httpx" for t in (1, 2)},
     **{f"llm-t{t}": "system-one-adapter" for t in (1, 2)},
+    **{f"qwen-t{t}": "system-one-adapter" for t in (1, 2)},
 }
 
 DEFAULT_BENCH_PLAYERS = "code,random"

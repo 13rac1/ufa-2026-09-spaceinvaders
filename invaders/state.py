@@ -62,7 +62,12 @@ MOTHERSHIP_COLOR = (151, 25, 122)
 SHOT_COLOR = (142, 142, 142)  # the player's shot; drawn on the frames the harness observes
 MOTHERSHIP_Y = 16  # center row
 MOTHERSHIP_SPEED = 0.25  # pixels per frame
-MOTHERSHIP_SAFE_ROW_Y = 155  # chase the mothership only while the lowest aliens are above this
+MOTHERSHIP_SAFE_ROW_Y = 155
+INVASION_Y = 160  # the lowest alien row's center y at which the game ends (measured 163-165)
+DESCENT_PX = 10  # the fleet drops this far each time it turns at an edge
+URGENT_FRAMES = 1e9  # below this margin to invasion only the lowest row counts
+MOTHERSHIP_MIN_MARGIN = 0.0  # frames to invasion needed before chasing the mothership
+POINTS_WEIGHT = 1.0  # how much a higher row's points count against its extra frames  # chase the mothership only while the lowest aliens are above this
 
 
 def _runs(indices: np.ndarray) -> list[tuple[int, int]]:
@@ -160,6 +165,57 @@ def _lead_x(alien: dict, fleet: dict) -> float:
     return alien["x"] + _fleet_shift(fleet["x"], fleet, (SHIP_TOP_Y - alien["y"]) / SHOT_SPEED)
 
 
+def _frames_to_invasion(lowest_y: float, fleet: dict) -> float:
+    """Frames until the lowest alien row reaches INVASION_Y, from the fleet's motion.
+
+    The fleet drops DESCENT_PX each time it turns at an edge; the estimate assumes its
+    current speed (it speeds up as aliens die, so the real margin is shorter).
+    """
+    descents = int(np.ceil((INVASION_Y - lowest_y) / DESCENT_PX))
+    if descents <= 0:
+        return 0.0
+    speed = fleet["step"] / fleet["period"]
+    x = fleet.get("x", FLEET_MIN_X)
+    to_edge = (FLEET_MAX_X - x if fleet["dir"] > 0 else x - FLEET_MIN_X) / speed
+    return to_edge + (descents - 1) * (FLEET_MAX_X - FLEET_MIN_X) / speed
+
+
+def _choose_target(aliens, fleet, shot_x, shield_columns) -> tuple[int | None, bool, float]:
+    """Return (target_dx, target_behind_shield, frames_to_invasion).
+
+    Invasion control: while the fleet is far from landing, aim at the clear alien that
+    gives the most points per frame (travel plus shot flight; rows are worth 5 to 30
+    points from the bottom up). When fewer than URGENT_FRAMES remain, only the lowest
+    row counts, because removing it buys time. With no clear alien in the lowest row,
+    aim through a shield.
+    """
+    if not aliens:
+        return None, False, float("inf")
+
+    def reachable(a):
+        return SHIP_MIN_X <= a["x"] - SHOT_OFFSET <= SHIP_MAX_X and not shield_columns[a["x"]]
+
+    def travel(a):
+        return abs(_lead_x(a, fleet) - shot_x)
+
+    lowest_y = max(a["y"] for a in aliens)
+    margin = _frames_to_invasion(lowest_y, fleet)
+    bottom_row = [a for a in aliens if a["y"] >= lowest_y - 2]
+    clear_bottom = [a for a in bottom_row if reachable(a)]
+    if margin < URGENT_FRAMES or not clear_bottom:
+        pool = clear_bottom
+    else:
+        rows = sorted({round(a["y"] / 6) for a in aliens}, reverse=True)  # bottom first
+        def value(a):
+            points = 5 * (rows.index(round(a["y"] / 6)) + 1)
+            frames = travel(a) / SHIP_SPEED + (SHIP_TOP_Y - a["y"]) / SHOT_SPEED
+            return points ** POINTS_WEIGHT / max(frames, 1.0)
+        clear = [a for a in aliens if reachable(a)]
+        pool = [max(clear, key=value)] if clear else []
+    target = min(pool or bottom_row, key=travel)
+    return round(_lead_x(target, fleet) - shot_x), not pool, margin
+
+
 def _features(
     ship_x, can_fire, aliens, bullets, shield_columns, fleet, mothership, shot=None
 ) -> dict:
@@ -169,27 +225,15 @@ def _features(
         name: not any(_hits(b, ship_x, d) for b in threats)
         for name, d in (("left", -1), ("stay", 0), ("right", 1))
     }
-    # Target: the game ends when the lowest alien row reaches the shields, so aim at
-    # the lowest row first; those shots are also the shortest. Within that row, the
-    # closest alien the ship can shoot without a shield in the way; if all of them are
-    # behind a shield, the closest one.
-    target_dx = None
-    target_behind_shield = False
-    if aliens:
-        lowest_y = max(a["y"] for a in aliens)
-        bottom_row = [a for a in aliens if a["y"] >= lowest_y - 2]
-        clear = [
-            a for a in bottom_row
-            if SHIP_MIN_X <= a["x"] - SHOT_OFFSET <= SHIP_MAX_X and not shield_columns[a["x"]]
-        ]
-        target_behind_shield = not clear
-        nearest = min(clear or bottom_row, key=lambda a: abs(_lead_x(a, fleet) - shot_x))
-        target_dx = round(_lead_x(nearest, fleet) - shot_x)
+    target_dx, target_behind_shield, margin = _choose_target(
+        aliens, fleet, shot_x, shield_columns
+    )
     # The mothership is worth 200 points against 5 to 30 for an alien: chase it while
     # the fleet is high enough, if the intercept point is on the ship's range.
     target_kind = "alien" if aliens else None
     if mothership is not None and mothership["vx"] and (
-        not aliens or max(a["y"] for a in aliens) <= MOTHERSHIP_SAFE_ROW_Y
+        not aliens
+        or (max(a["y"] for a in aliens) <= MOTHERSHIP_SAFE_ROW_Y and margin >= MOTHERSHIP_MIN_MARGIN)
     ):
         lead = mothership["x"] + mothership["vx"] * (SHIP_TOP_Y - MOTHERSHIP_Y) / SHOT_SPEED
         if SHIP_MIN_X <= lead - SHOT_OFFSET <= SHIP_MAX_X and not shield_columns[int(lead)]:

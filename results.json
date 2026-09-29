@@ -8,6 +8,15 @@
       "served_model": "jev-1.13.0",
       "sdk_package": "httpx",
       "sdk_version": "0.28.1",
+      "player": "jev-t2"
+    },
+    {
+      "role": "decider",
+      "provider": "typesafe",
+      "requested_model": "jev-latest",
+      "served_model": "jev-1.13.0",
+      "sdk_package": "httpx",
+      "sdk_version": "0.28.1",
       "player": "jev-t1"
     },
     {
@@ -1575,6 +1584,39 @@
       "notes": "Tier 1, Qwen3.8 27B (Q4_K_M) through Ollama, thinking off, through the System One adapter",
       "cost_usd": 0.0,
       "run": 54
+    },
+    {
+      "seed": 101,
+      "score": 230.0,
+      "steps": 737,
+      "frames": 2947,
+      "lives_lost": 3,
+      "terminated": true,
+      "truncated": false,
+      "model_calls": 737,
+      "input_tokens": 661009,
+      "output_tokens": 49790,
+      "latency_ms_p50": 91.32886500447057,
+      "latency_ms_p95": 142.555862001609,
+      "latency_ms_total": 72693.67054177565,
+      "errors_by_status": {},
+      "retries": 0,
+      "fallback_actions": 0,
+      "wall_clock_s": 74.48399779599276,
+      "served_model": "jev-1.13.0",
+      "player": "jev-t2",
+      "player_version": "q7",
+      "mode": "turn",
+      "added_delay_ms": 0.0,
+      "decisions": 737,
+      "max_steps": null,
+      "mean_confidence": 0.29682496607869746,
+      "low_conf_rate": 1.0,
+      "input_tier": 2,
+      "question_version": 7,
+      "notes": "Tier 2 question v7 (exact facts relative to the ship, v3 fleet model)",
+      "cost_usd": 0.027762,
+      "run": 55
     }
   ],
   "baseline": {

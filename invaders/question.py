@@ -16,9 +16,9 @@ in one place.
 from invaders.state import ACTIONS, tier1_view, tier2_view
 
 # The wording version per tier, recorded with each run so a score change can be told
-# apart from a wording change. Tier 2 v7 is the v4 wording and Tier 3 v8 the v2 wording,
-# both with the values of the code player's v3 fleet model.
-QUESTION_VERSIONS = {1: 3, 2: 7, 3: 8}
+# apart from a wording change. Tier 2 v7 is the v4 wording with the values of the v3 fleet
+# model; Tier 3 v9 is the v2 wording over the code player's v4 verdicts.
+QUESTION_VERSIONS = {1: 3, 2: 7, 3: 9}
 
 _GAME = (
     "The ship is 7 px wide and moves 0.5 px per frame; one step is 4 frames. Its shot "

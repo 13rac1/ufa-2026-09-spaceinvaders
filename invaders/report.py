@@ -18,7 +18,7 @@ HUMAN_HIGH = 1668.7
 # Player row order for the summary table; a player not listed here (there is
 # none today) would sort after these, alphabetically.
 PLAYER_ORDER = [
-    "code", "code-la", "jev-t3", "jev-t2", "jev-t1", "llm-t2", "llm-t1", "qwen-t2", "qwen-t1",
+    "code", "code-la", "jev-t3", "jev-goal", "jev-t2", "jev-t1", "llm-t2", "llm-t1", "qwen-t2", "qwen-t1",
     "always-fire", "random",
 ]
 
@@ -27,6 +27,7 @@ TIER_NOTE = {
     1: "Tier 1: decoded positions",
     2: "Tier 2: exact facts, relative",
     3: "Tier 3: code verdicts (reference)",
+    "goal": "Goal: JEV picks the target, code executes",
 }
 MODE_ORDER = ["turn", "realtime"]
 

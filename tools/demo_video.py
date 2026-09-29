@@ -1,6 +1,8 @@
 """Put game recordings side by side with a caption above each, for the demo video.
 
-Usage: python tools/demo_video.py out.mp4 "caption one=a.mp4" "caption two=b.mp4" ...
+Usage: python tools/demo_video.py [--columns N] [--fps F] out.mp4 "caption one=a.mp4" ...
+
+Panels fill rows of N (default: all in one row). --fps 30 plays at 2x, 45 at 3x.
 
 Each input is a recording made with `python -m invaders run --video-dir DIR`. Frames are
 scaled 3 times; a game that ends first keeps its last frame on screen.
@@ -26,7 +28,25 @@ def _caption(text: str, width: int) -> np.ndarray:
     return np.asarray(image)
 
 
-def main(out: str, inputs: list[str]) -> None:
+def _grid(panels: list[np.ndarray], columns: int) -> np.ndarray:
+    blank = np.zeros_like(panels[0])
+    rows = []
+    for start in range(0, len(panels), columns):
+        row = panels[start : start + columns]
+        row += [blank] * (columns - len(row))
+        gap = np.zeros((row[0].shape[0], 12, 3), dtype=np.uint8)
+        line = row[0]
+        for panel in row[1:]:
+            line = np.hstack([line, gap, panel])
+        rows.append(line)
+    gap = np.zeros((12, rows[0].shape[1], 3), dtype=np.uint8)
+    grid = rows[0]
+    for line in rows[1:]:
+        grid = np.vstack([grid, gap, line])
+    return grid
+
+
+def main(out: str, inputs: list[str], columns: int = 0, fps: float = FPS) -> None:
     clips, captions = [], []
     for item in inputs:
         caption, path = item.rsplit("=", 1)
@@ -35,16 +55,17 @@ def main(out: str, inputs: list[str]) -> None:
         clips.append(frames)
         captions.append(_caption(caption, frames[0].shape[1]))
     length = max(len(c) for c in clips)
-    with imageio.get_writer(out, fps=FPS, macro_block_size=1) as writer:
+    with imageio.get_writer(out, fps=fps, macro_block_size=1) as writer:
         for i in range(length):
             panels = [np.vstack([cap, clip[min(i, len(clip) - 1)]])
                       for cap, clip in zip(captions, clips)]
-            gap = np.zeros((panels[0].shape[0], 12, 3), dtype=np.uint8)
-            row = panels[0]
-            for panel in panels[1:]:
-                row = np.hstack([row, gap, panel])
-            writer.append_data(row)
+            writer.append_data(_grid(panels, columns or len(panels)))
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2:])
+    args = sys.argv[1:]
+    options = {}
+    while args and args[0].startswith("--"):
+        options[args[0][2:]] = float(args[1])
+        args = args[2:]
+    main(args[0], args[1:], int(options.get("columns", 0)), options.get("fps", FPS))

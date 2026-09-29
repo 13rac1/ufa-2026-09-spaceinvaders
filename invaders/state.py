@@ -186,6 +186,18 @@ def _frames_to_invasion(lowest_y: float, fleet: dict) -> float:
     return to_edge + (descents - 1) * (hi - lo) / speed
 
 
+def _shot_victim(aliens, fleet, shot) -> dict | None:
+    """The alien the player's shot in flight will hit first, or None."""
+    if not shot or shot.get("x") is None or shot.get("y") is None:
+        return None
+    hits = []
+    for a in aliens:
+        frames = (shot["y"] - a["y"]) / SHOT_SPEED
+        if frames >= 0 and abs(a["x"] + _fleet_shift(fleet["x"], fleet, frames) - shot["x"]) <= 4:
+            hits.append(a)
+    return max(hits, key=lambda a: a["y"]) if hits else None
+
+
 def _choose_target(aliens, fleet, shot_x, shield_columns) -> tuple[int | None, bool, float]:
     """Return (target_dx, target_behind_shield, frames_to_invasion).
 
@@ -241,8 +253,10 @@ def _features(
         name: not any(_hits(b, ship_x, d) for b in threats)
         for name, d in (("left", -1), ("stay", 0), ("right", 1))
     }
+    # While a shot flies, aim at the next target: the shot's victim is as good as gone.
+    victim = _shot_victim(aliens, fleet, shot)
     target_dx, target_behind_shield, margin = _choose_target(
-        aliens, fleet, shot_x, shield_columns
+        [a for a in aliens if a is not victim] or aliens, fleet, shot_x, shield_columns
     )
     # The mothership is worth 200 points against 5 to 30 for an alien: chase it while
     # the fleet is high enough, if the intercept point is on the ship's range.

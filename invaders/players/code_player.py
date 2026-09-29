@@ -7,7 +7,7 @@ NOOP, FIRE, RIGHT, LEFT, RIGHTFIRE, LEFTFIRE = range(len(ACTIONS))
 
 # Recorded with every run; bump it when the decoder's targeting or choose() changes, so
 # the results history keeps each version's runs apart.
-CODE_VERSION = "v3"
+CODE_VERSION = "v4"
 
 
 class CodePlayer:

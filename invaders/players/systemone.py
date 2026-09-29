@@ -72,42 +72,11 @@ class SystemOnePlayer:
         return headers
 
     def decide(self, state: dict, previous_action: int) -> Decision:
-        body = {
-            "state": build_request_state(state, self.input_tier),
-            "model": self.requested_model,
-            "questions": build_questions(self.input_tier),
-        }
-        headers = self._headers()
-        url = f"{self._base_url}/v1/systemone"
-
-        def post() -> httpx.Response:
-            # Compact JSON: the model is billed per input token.
-            response = self._client.post(
-                url,
-                content=json.dumps(body, separators=(",", ":")),
-                headers=headers,
-                timeout=self._timeout_s,
-            )
-            if response.status_code in TRANSIENT_STATUSES:
-                raise TransientStatus(response.status_code)
-            return response
-
-        model_calls = 1  # one model call per decision; each extra attempt is a retry
-        try:
-            response, retries = call_with_retry(post, max_outage_s=self._max_outage_s)
-        except Exception as error:  # noqa: BLE001 - a failed call must not end the game
-            # A permanent failure, or an outage longer than max_outage_s.
-            return self._fallback(previous_action, model_calls, 0, status_of(error))
-
-        if response.status_code != 200:
-            return self._fallback(
-                previous_action, model_calls, retries, response.status_code
-            )
-
-        try:
-            data = response.json()
-        except ValueError:  # a body that is not JSON, for example a proxy error page
-            return self._fallback(previous_action, model_calls, retries, response.status_code)
+        data, model_calls, retries, error_status = self._ask(
+            build_request_state(state, self.input_tier), build_questions(self.input_tier)
+        )
+        if data is None:
+            return self._fallback(previous_action, model_calls, retries, error_status)
         answer = data.get("answers", {}).get("action")
         if answer is None or answer.get("choice") not in ACTIONS:
             return self._fallback(previous_action, model_calls, retries, None)
@@ -130,6 +99,37 @@ class SystemOnePlayer:
             served_model=data.get("model"),
             retries=retries,
         )
+
+    def _ask(self, request_state: dict, questions: dict) -> tuple[dict | None, int, int, int | None]:
+        """Send one request; return (response JSON or None, model calls, retries, HTTP status)."""
+        body = {"state": request_state, "model": self.requested_model, "questions": questions}
+        headers = self._headers()
+        url = f"{self._base_url}/v1/systemone"
+
+        def post() -> httpx.Response:
+            # Compact JSON: the model is billed per input token.
+            response = self._client.post(
+                url,
+                content=json.dumps(body, separators=(",", ":")),
+                headers=headers,
+                timeout=self._timeout_s,
+            )
+            if response.status_code in TRANSIENT_STATUSES:
+                raise TransientStatus(response.status_code)
+            return response
+
+        model_calls = 1  # one model call per request; each extra attempt is a retry
+        try:
+            response, retries = call_with_retry(post, max_outage_s=self._max_outage_s)
+        except Exception as error:  # noqa: BLE001 - a failed call must not end the game
+            # A permanent failure, or an outage longer than max_outage_s.
+            return None, model_calls, 0, status_of(error)
+        if response.status_code != 200:
+            return None, model_calls, retries, response.status_code
+        try:
+            return response.json(), model_calls, retries, None
+        except ValueError:  # a body that is not JSON, for example a proxy error page
+            return None, model_calls, retries, response.status_code
 
     def _fallback(
         self,

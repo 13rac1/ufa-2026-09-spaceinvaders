@@ -10,6 +10,7 @@ from pathlib import Path
 from invaders.bench import build_matrix, existing_keys, game_key, play_and_record
 from invaders.players.code_player import CodePlayer, LatencyAwareCodePlayer
 from invaders.players.fire_player import AlwaysFirePlayer
+from invaders.players.goal_player import GoalPlayer
 from invaders.players.llm_player import LLMPlayer
 from invaders.players.random_player import RandomPlayer
 from invaders.players.systemone import MissingAPIKeyError, SystemOnePlayer
@@ -50,6 +51,15 @@ PLAYERS = {
         provider="typesafe",
         tier=3,
     ),
+    # JEV chooses the target; the code player's rules move, aim, fire and dodge.
+    "jev-goal": functools.partial(
+        GoalPlayer,
+        name="jev-goal",
+        base_url="https://api.typesafe.ai",
+        model="jev-latest",
+        api_key_env="TYPESAFE_API_KEY",
+        provider="typesafe",
+    ),
     "llm-t1": functools.partial(LLMPlayer, name="llm-t1", tier=1),
     # Qwen on a local OpenAI-compatible server (LLM_BASE_URL, LLM_PROVIDER=openai, LLM_MODEL,
     # LLM_REASONING_EFFORT=none): an extra LLM row, free to run.
@@ -61,6 +71,7 @@ PLAYERS = {
 # The sdk_package/sdk_version recorded in a run's model entry, per player.
 SDK_PACKAGES = {
     **{f"jev-t{t}": "httpx" for t in (1, 2, 3)},
+    "jev-goal": "httpx",
     **{f"llm-t{t}": "system-one-adapter" for t in (1, 2)},
     **{f"qwen-t{t}": "system-one-adapter" for t in (1, 2)},
 }

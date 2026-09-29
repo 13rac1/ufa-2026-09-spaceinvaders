@@ -20,6 +20,15 @@
       "player": "jev-t1"
     },
     {
+      "role": "decider",
+      "provider": "typesafe",
+      "requested_model": "jev-latest",
+      "served_model": "jev-1.13.0",
+      "sdk_package": "httpx",
+      "sdk_version": "0.28.1",
+      "player": "jev-t3"
+    },
+    {
       "role": "baseline",
       "provider": "anthropic",
       "requested_model": "claude-haiku-4-5",
@@ -1749,6 +1758,39 @@
       "notes": "Tier 2 question v7 (exact facts relative to the ship, v3 fleet model)",
       "cost_usd": 0.022788,
       "run": 59
+    },
+    {
+      "seed": 101,
+      "score": 2335.0,
+      "steps": 2627,
+      "frames": 10505,
+      "lives_lost": 3,
+      "terminated": true,
+      "truncated": false,
+      "model_calls": 2627,
+      "input_tokens": 3620544,
+      "output_tokens": 177470,
+      "latency_ms_p50": 96.79006098303944,
+      "latency_ms_p95": 146.82533409795724,
+      "latency_ms_total": 269263.93343968084,
+      "errors_by_status": {},
+      "retries": 0,
+      "fallback_actions": 0,
+      "wall_clock_s": 274.61030473798746,
+      "served_model": "jev-1.13.0",
+      "player": "jev-t3",
+      "player_version": "q8",
+      "mode": "turn",
+      "added_delay_ms": 0.0,
+      "decisions": 2627,
+      "max_steps": null,
+      "mean_confidence": 0.977894937190712,
+      "low_conf_rate": 0.001903311762466692,
+      "input_tier": 3,
+      "question_version": 8,
+      "notes": "Tier 3 reference: question v8, the code player's v3 verdicts and rules",
+      "cost_usd": 0.152063,
+      "run": 60
     }
   ],
   "baseline": {

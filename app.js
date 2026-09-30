@@ -81,9 +81,9 @@ function barChart({ rows, max, width = 900, label, value, color, line, lineLabel
 /* ---------- chapter 3 and 4: example frame and tiers ---------- */
 const byPlayer = Object.fromEntries(DATA.entry.rows.map((r) => [r.player, r]));
 const TIER_TEXT = {
-  1: "Tier 1 gives positions in screen pixels: where each alien row is, where the ship and the bullets are, how fast the fleet moves. The model must work out the rest itself: where the alien will be when a shot gets there, whether a bullet will hit.",
-  2: "Tier 2 gives the same facts with the arithmetic done: each bullet's distance and time to the ship, each alien's offset from the gun at the moment a shot would reach it. The choice of target is still the model's.",
-  3: "Tier 3 hands over the code's own verdicts: which moves are safe, which alien to aim at, whether it is lined up. At this tier the code decides and the model mostly agrees, so it is a reference row, not a test.",
+  1: "Positions only. The model must work out where each alien will be when a shot arrives.",
+  2: "The same facts with distances and timings worked out. The target is still the model's choice.",
+  3: "The program's own verdicts: what is safe, what to aim at. Here the program decides and JEV agrees.",
 };
 const TIER_PLAYERS = { 1: ["jev-t1", "qwen-t1", "llm-t1"], 2: ["jev-t2", "qwen-t2", "llm-t2"], 3: ["jev-t3"] };
 
@@ -172,9 +172,8 @@ function setupScores() {
   document.querySelectorAll(".toggle button").forEach((b) => b.addEventListener("click", () => draw(b.dataset.metric)));
   draw("score");
   const jev = byPlayer["jev-t1"], haiku = byPlayer["llm-t1"];
-  $("#score-summary").textContent = `Over all ${DATA.entry.code_all_n} evaluation seeds the code scores ${fmt(DATA.entry.code_all)}. `
-    + `At Tier 1, JEV scores ${fmt(jev.score)} against ${fmt(haiku.score)} for Haiku, ${Math.round(haiku.latency_ms / jev.latency_ms)} times faster and `
-    + `${Math.round(haiku.cost / jev.cost)} times cheaper per decision. No model beats holding FIRE on average when it gets only facts.`;
+  $("#score-summary").textContent = `JEV beats both LLMs at the same tier, ${Math.round(haiku.latency_ms / jev.latency_ms)}x faster and `
+    + `${Math.round(haiku.cost / jev.cost)}x cheaper than Haiku. Evaluation seeds 101-105, turn mode.`;
 }
 
 /* ---------- chapter 7: speed ---------- */
@@ -187,13 +186,10 @@ function setupSpeed() {
     value: (r) => (r._v < 0.01 ? "0 frames" : `${r._v.toFixed(r._v < 10 ? 1 : 0)} frames`),
     lineLabel: "frames that pass while deciding",
   });
-  $("#frames-chart").insertAdjacentHTML("beforeend", `<p class="small">An alien bullet falls 1 pixel per frame, so
-    during one Haiku decision it falls about ${fmt((byPlayer["llm-t1"].latency_ms * 60) / 1000)} pixels.</p>`);
   const [jevTurn, jevReal] = DATA.entry.realtime.jev;
   const [codeTurn, codeReal] = DATA.entry.realtime.code;
-  $("#speed-summary").innerHTML = `Measured in realtime mode: JEV at Tier 1 keeps about ${Math.round((100 * jevReal) / jevTurn)}% of its score
-    (${fmt(jevReal)} against ${fmt(jevTurn)}), and the code scores ${fmt(codeReal)} against ${fmt(codeTurn)}: it decides so fast
-    that nothing changes. An LLM that takes a second lets 60 frames go by between moves. <span class="tag entry">entry</span>`;
+  $("#speed-summary").innerHTML = `A bullet falls 1 px per frame. In realtime JEV keeps ${Math.round((100 * jevReal) / jevTurn)}% of its score;
+    the program loses nothing (${fmt(codeReal)}).`;
 }
 
 /* ---------- chapter 8: waves ---------- */
@@ -224,15 +220,14 @@ function setupAfter() {
     rows: versions, max: Math.max(...versions.map((r) => r._v)),
     label: (r) => `${r.name} (${r.games} games)`, value: (r) => fmt(r.score), color: () => css("--code"),
     line: DATA.entry.human, lineLabel: "human reference",
-  }) + `<p class="small">Mean over evaluation seeds 101-120. v3 is the entry.</p>`;
+  }) + `<p class="small">Evaluation seeds 101-120. v3 is the entry; v5's best rule came from watching the video.</p>`;
   $("#rules").innerHTML = DATA.after.code_steps.map((s) =>
     `<li><span class="v">${s.version}</span>${esc(s.rule)} <span class="small">(${esc(s.tuning)})</span></li>`).join("");
-  $("#failed").innerHTML = DATA.after.failed.map(([idea, d]) => `<li>${esc(idea)}: ${esc(d)} points per game</li>`).join("")
-    + `<li class="small">All measured on tuning seeds, paired game by game against the previous version.</li>`;
+  $("#failed").innerHTML = DATA.after.failed.map(([idea, d]) => `<li>Failed: ${esc(idea)} (${esc(d)} per game)</li>`).join("");
 
   const st = DATA.after.strategy;
   const models = [["JEV", "jev", "jev-t1"], ["Haiku", "haiku", "llm-t1"], ["Qwen", "qwen", "qwen-t1"]];
-  const W = 900, rowH = 26, groupH = rowH * 2 * st.labels.length + 36;
+  const W = 900, rowH = 20, groupH = rowH * 2 * st.labels.length + 32;
   let s = `<svg viewBox="0 0 ${W} ${groupH * models.length}" role="img" aria-label="Right answers without and with the strategy">`;
   models.forEach(([name, key, player], m) => {
     const gy = m * groupH;
@@ -240,17 +235,15 @@ function setupAfter() {
     st.labels.forEach((lab, k) => {
       [0, 1].forEach((j) => {
         const y = gy + 28 + (k * 2 + j) * rowH, v = st[key][k][j], w = v * (W - 360);
-        s += `<text x="250" y="${y + 17}" text-anchor="end" class="${j ? "" : "muted"}">${j ? "with strategy" : lab}</text>`;
-        s += `<rect x="260" y="${y + 4}" width="${Math.max(2, w)}" height="${rowH - 8}" rx="3" fill="${COLOR(player)}" opacity="${j ? 1 : 0.4}"/>`;
-        s += `<text x="${266 + w}" y="${y + 17}">${Math.round(v * 100)}%</text>`;
+        s += `<text x="250" y="${y + 15}" text-anchor="end" class="${j ? "" : "muted"}">${j ? "with strategy" : lab}</text>`;
+        s += `<rect x="260" y="${y + 4}" width="${Math.max(2, w)}" height="${rowH - 6}" rx="3" fill="${COLOR(player)}" opacity="${j ? 1 : 0.4}"/>`;
+        s += `<text x="${266 + w}" y="${y + 15}">${Math.round(v * 100)}%</text>`;
       });
     });
   });
   $("#strategy-chart").innerHTML = s + "</svg>";
-  $("#strategy-summary").innerHTML = `JEV follows the strategy much better frame by frame. But in five real games it averaged
-    ${st.jev_games}: it now moves toward targets, and its shots miss. Haiku fires much less once it tries to do the aiming
-    arithmetic in words. <strong>Knowing what to do is not the same as doing it precisely 15 times a second.</strong>
-    <span class="tag tuning">tuning seeds</span>`;
+  $("#strategy-summary").innerHTML = `Right answers on 300 frames, without and with the program's strategy in the question.
+    JEV moves more, but in real games it scored ${st.jev_games}: <strong>knowing what to do is not doing it.</strong>`;
 
   const nq = DATA.narrow;
   $("#narrow-table").innerHTML = `<table class="data"><thead><tr><th>Question</th><th>JEV right</th>
@@ -258,11 +251,8 @@ function setupAfter() {
     `<tr><td>${esc(q.question)}</td><td>${Math.round(q.right * 100)}%</td><td>${Math.round(q.guess * 100)}%</td></tr>`).join("")}
     </tbody></table>`;
   const [fl, nl] = [nq.fired.lined_up, nq.fired.not_lined_up];
-  $("#narrow-summary").innerHTML = `On none of the four questions does JEV beat a constant guess (${nq.frames} frames).
-    In our logged practice games at Tiers 1 and 2 it fired on ${Math.round((100 * fl[0]) / fl[1])}% of the frames where a
-    shot was lined up, and on ${Math.round((100 * nl[0]) / nl[1])}% of the frames where it was not: it fires whenever
-    the gun is ready. Given positions, JEV does not work out the geometry; that is the program's job.
-    <span class="tag tuning">tuning seeds</span>`;
+  $("#narrow-summary").innerHTML = `No better than a constant guess. And it fires whenever the gun is ready:
+    ${Math.round((100 * fl[0]) / fl[1])}% when lined up, ${Math.round((100 * nl[0]) / nl[1])}% when not. So it plays like holding FIRE.`;
 
   const g = DATA.after.goal;
   const goalRows = [
@@ -273,10 +263,23 @@ function setupAfter() {
   $("#goal-chart").innerHTML = barChart({
     rows: goalRows, max: Math.max(...goalRows.map((r) => r._v)), left: 320,
     label: (r) => r.name, value: (r) => `${fmt(r._v)} (${r.note})`, color: (r) => COLOR(r.player),
-  }) + `<p class="small">Different seed sets, so compare roughly: the jump from about 200 to about 1,500 comes from moving
-    aiming and firing into code. <span class="tag after">after the deadline</span></p>`;
+  }) + `<p class="small">Code aims and fires; JEV only picks the target. That is the split TypeSafe's own guide recommends.</p>`;
 }
 
+function setupHero() {
+  const order = ["code", "always-fire", "jev-t1", "qwen-t1", "llm-t1"];
+  const names = { code: "Program", "always-fire": "Hold FIRE", "jev-t1": "JEV", "qwen-t1": "Qwen", "llm-t1": "Haiku" };
+  // HTML bars, not SVG: the text keeps its size on a phone.
+  const max = Math.max(...order.map((p) => byPlayer[p].score)) * 1.18;
+  const pct = (v) => `${(100 * v) / max}%`;
+  $("#hero-chart").innerHTML = `<div class="hbars" role="img" aria-label="${order.map((p) => `${names[p]} ${byPlayer[p].score}`).join(", ")}">
+    ${order.map((p) => `<div class="hrow"><span class="hname">${names[p]}</span><div class="htrack">
+      <div class="hbar" style="width:${pct(byPlayer[p].score)};background:${COLOR(p)}"></div>
+      <span class="hval${byPlayer[p].score / max > 0.5 ? " inside" : ""}" style="left:${pct(byPlayer[p].score)}">${fmt(byPlayer[p].score)}</span></div></div>`).join("")}
+    <div class="hguide"><div class="hhuman" style="left:${pct(DATA.entry.human)}"><span>human ${fmt(DATA.entry.human)}</span></div></div></div>`;
+}
+
+setupHero();
 setupTerms();
 setupTiers();
 setupQuiz();

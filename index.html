@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Space Invaders, three ways to decide</title>
-<meta name="description" content="A rule-based program, a decision model (JEV) and two LLMs play Atari Space Invaders. What really decides the score? An explainer for the UFA JEV Bake-Off entry.">
+<meta name="description" content="Holding FIRE beat JEV and two LLMs at Atari Space Invaders. A plain program beat them all by 10 to 20 times. Why, explained.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Space Invaders, three ways to decide">
-<meta property="og:description" content="A rule-based program, a decision model (JEV) and two LLMs play the same Atari game. What really decides the score?">
+<meta property="og:description" content="Holding FIRE beat JEV and two LLMs at Atari Space Invaders. A plain program beat them all by 10 to 20 times.">
 <meta property="og:url" content="https://13rac1.github.io/ufa-2026-09-spaceinvaders/">
 <meta property="og:image" content="https://13rac1.github.io/ufa-2026-09-spaceinvaders/assets/social.png">
 <meta property="og:image:width" content="1280">
@@ -23,139 +23,91 @@
 </head>
 <body>
 <header class="top">
-  <div class="wrap">
-    <p class="kicker">UFA JEV Bake-Off · eval track · an explainer</p>
-    <h1>Space Invaders,<br>three ways to decide</h1>
-    <p class="lede">We asked a <dfn data-term="code">rule-based program</dfn>, a
-      <dfn data-term="jev">decision model</dfn> and two <dfn data-term="llm">LLMs</dfn> to play
-      Atari Space Invaders, gave each the same game, and measured what really decides the score.</p>
-    <p class="links"><a href="https://github.com/13rac1/ufa-2026-09-spaceinvaders">The repository</a>
-      · <a href="#glossary">Glossary</a> · <a href="#fair">How to check every number</a></p>
+  <div class="wrap hero">
+    <p class="kicker">UFA JEV Bake-Off · Space Invaders</p>
+    <h1>Holding FIRE beat the AI.</h1>
+    <p class="lede">Just holding the FIRE button outscored <dfn data-term="jev">JEV</dfn> and two
+      <dfn data-term="llm">LLMs</dfn>. A <dfn data-term="code">plain program</dfn> beat all three by
+      10 to 20 times.</p>
+    <div id="hero-chart" class="chart hero-chart"></div>
+    <p class="small">Mean score, the same five games. The models got the game as numbers
+      (<dfn data-term="tier">Tier 1</dfn>). The program uses no AI while it plays.</p>
+    <p class="links"><a href="#watch">Watch</a> · <a href="#why">Why?</a> ·
+      <a href="https://github.com/13rac1/ufa-2026-09-spaceinvaders">The repository</a></p>
   </div>
 </header>
 
 <nav class="chapters" aria-label="Chapters">
-  <a href="#watch">1 Watch</a><a href="#players">2 Players</a><a href="#anatomy">3 One decision</a>
-  <a href="#tiers">4 Tiers</a><a href="#quiz">5 Your turn</a><a href="#scores">6 Scores</a>
-  <a href="#speed">7 Speed</a><a href="#waves">8 Endings</a><a href="#after">9 Afterwards</a>
-  <a href="#fair">10 Check it</a>
+  <a href="#watch">Watch</a><a href="#why">Why</a><a href="#tiers">Tiers</a><a href="#quiz">Your turn</a>
+  <a href="#scores">Scores</a><a href="#speed">Speed</a><a href="#waves">Endings</a>
+  <a href="#after">Afterwards</a><a href="#fair">Check it</a>
 </nav>
 
 <main>
 <section id="watch" class="wrap">
-  <h2><span class="num">1</span> Watch them play</h2>
-  <p>Six players, the same game (<dfn data-term="seed">seed</dfn> 119), sped up three times.
-    The number on each screen is the score so far; the caption shows the final score.</p>
+  <h2>Watch them play</h2>
   <figure class="video">
     <video src="assets/six-players.mp4" poster="assets/six-players.jpg" controls muted playsinline loop preload="metadata"></video>
-    <figcaption>Top: the rule-based program (code v5), JEV, Claude Haiku 4.5. Bottom: Qwen3.8 27B,
-      a player that holds FIRE, a player that presses random buttons.
-      <span class="tag after">after the deadline: code v5</span></figcaption>
+    <figcaption>Same game, 3x speed. Top: the program, JEV, Claude Haiku 4.5. Bottom: Qwen3.8 27B,
+      hold FIRE, random buttons. <span class="tag after">code v5</span></figcaption>
   </figure>
-  <p class="note">The program on the top left does not use AI while it plays. Why it still wins
-    is the story of this page.</p>
 </section>
 
-<section id="players" class="wrap">
-  <h2><span class="num">2</span> Who is playing?</h2>
+<section id="why" class="wrap">
+  <h2>Why? Who is playing</h2>
   <div class="cards four">
-    <article class="card c-code">
-      <h3>Code</h3>
-      <p class="what">A rule-based program. An AI coding agent (Claude, directed by the
-        operator) wrote its rules before the games; while it plays, no model runs.</p>
-      <p class="facts"><span>&lt; 0.1 ms per decision</span><span>$0</span></p>
-      <p class="good">Good at: anything that can be worked out exactly, every frame.</p>
-    </article>
-    <article class="card c-jev">
-      <h3>JEV</h3>
-      <p class="what">A <dfn data-term="jev">decision model</dfn> from TypeSafe. It is built on a
-        large language model too, but it does not write an answer: it reads the probability of
-        each option directly. That is why it is fast, and why its percentages mean something.</p>
-      <p class="facts"><span>≈ 93 ms per decision</span><span>≈ $0.00004</span></p>
-      <p class="good">Good at: fast judgments between a few options.</p>
-    </article>
-    <article class="card c-llm">
-      <h3>LLMs</h3>
-      <p class="what"><dfn data-term="llm">Large language models</dfn>: Claude Haiku 4.5 and
-        Qwen3.8 27B (open weights, through Ollama). They read the same question and write their answer
-        as text, word by word, which is why they are slower.</p>
-      <p class="facts"><span>≈ 1.1 s (Haiku), ≈ 2.4 s (Qwen)</span><span>≈ $0.0014 (Haiku)</span></p>
-      <p class="good">Good at: reading and reasoning in words.</p>
-    </article>
-    <article class="card c-floor">
-      <h3>Floors</h3>
-      <p class="what">Two players with no brain at all: one holds FIRE, one presses random
-        buttons. Any real player should beat them.</p>
-      <p class="facts"><span>&lt; 0.1 ms</span><span>$0</span></p>
-      <p class="good">Good at: keeping everyone honest.</p>
-    </article>
+    <article class="card c-code"><h3>Code</h3>
+      <p class="what">Rules written before the games by an AI coding agent (Claude). No model runs while it plays.</p>
+      <p class="facts"><span>&lt; 0.1 ms</span><span>$0</span></p></article>
+    <article class="card c-jev"><h3>JEV</h3>
+      <p class="what">TypeSafe's decision model. Built on a language model, but it reads the odds of each option instead of writing an answer.</p>
+      <p class="facts"><span>≈ 93 ms</span><span>≈ $0.00004</span></p></article>
+    <article class="card c-llm"><h3>LLMs</h3>
+      <p class="what">Claude Haiku 4.5 and Qwen3.8 27B. Same question; they write the answer word by word.</p>
+      <p class="facts"><span>≈ 1–2.4 s</span><span>≈ $0.0014</span></p></article>
+    <article class="card c-floor"><h3>Floors</h3>
+      <p class="what">Hold FIRE, or press random buttons. Anyone should beat these.</p>
+      <p class="facts"><span>&lt; 0.1 ms</span><span>$0</span></p></article>
   </div>
-</section>
-
-<section id="anatomy" class="wrap">
-  <h2><span class="num">3</span> Anatomy of one decision</h2>
-  <p>About 15 times a second, every player gets the current frame and picks one of six
-    actions. Here is one real frame, and what happens to it.</p>
+  <p class="note">The short answer: the game is fully known, so everything can be calculated. The program
+    calculates. The models have to guess where an alien will be when a shot arrives, and mostly can't.</p>
   <div class="flow">
-    <figure class="frame"><img id="example-frame" alt="A game frame: the ship at the bottom, rows of aliens above, three orange shields, an alien bullet falling." width="240" height="315"></figure>
-    <ol class="steps">
-      <li><strong>The <dfn data-term="decoder">decoder</dfn></strong> turns pixels into facts:
-        where the ship, the aliens, the bullets and the shields are.</li>
-      <li><strong>The harness builds a request:</strong> those facts plus one question,
-        "which of the six actions?". Every model gets the same request.</li>
-      <li><strong>JEV</strong> answers directly with a choice and probabilities.
-        <strong>The LLMs</strong> get the same question through the organizers'
-        <dfn data-term="systemone">System One adapter</dfn>, which turns it into a prompt and
-        reads the choice from their text.</li>
-      <li><strong>The game</strong> plays the chosen action for one step (4 frames).</li>
-    </ol>
-  </div>
-  <div class="pair">
-    <div><h4>What goes in (Tier 1)</h4><pre class="json" id="example-request"></pre></div>
-    <div><h4>What comes back</h4><pre class="json">{
-  "answers": {
-    "action": {
-      "choice": "RIGHT",
-      "confidence": 0.62
-    }
-  }
-}</pre><p class="small">Format example (from the TypeSafe docs), not a recorded answer.
-      The six options are NOOP, FIRE, RIGHT, LEFT, RIGHTFIRE and LEFTFIRE.</p></div>
+    <figure class="frame"><img id="example-frame" alt="A game frame: the ship at the bottom, rows of aliens, three shields, an alien bullet." width="240" height="315"></figure>
+    <div>
+      <h3>One decision, 15 times a second</h3>
+      <ol class="steps">
+        <li>The <dfn data-term="decoder">decoder</dfn> turns the screen into numbers.</li>
+        <li>Every model gets the same numbers and one question: which of six actions?</li>
+        <li>The game plays the answer for one step.</li>
+      </ol>
+      <details><summary>What a model receives</summary><pre class="json" id="example-request"></pre></details>
+    </div>
   </div>
 </section>
 
 <section id="tiers" class="wrap">
-  <h2><span class="num">4</span> The hidden setting: how much we work out first</h2>
-  <p>Before a model decides, the harness can hand it raw facts or facts with the arithmetic
-    already done. We call that the <dfn data-term="tier">input tier</dfn>. Same frame, three
-    tiers; click to compare what the model receives.</p>
+  <h2>The hidden setting: how much we calculate first</h2>
+  <p>Hand a model raw positions, or distances already worked out, or the program's own verdicts. The score follows.</p>
   <div class="tabs" role="tablist">
     <button role="tab" data-tier="1" aria-selected="true">Tier 1 · positions</button>
     <button role="tab" data-tier="2" aria-selected="false">Tier 2 · distances</button>
-    <button role="tab" data-tier="3" aria-selected="false">Tier 3 · the code's verdicts</button>
+    <button role="tab" data-tier="3" aria-selected="false">Tier 3 · verdicts</button>
   </div>
   <div class="tier-panel">
     <p id="tier-text"></p>
     <div class="tier-scores" id="tier-scores"></div>
     <details><summary>The exact request</summary><pre class="json tall" id="tier-json"></pre></details>
   </div>
-  <p class="note">At Tier 3 the code has already decided what is safe and what to aim at; the
-    model mostly agrees. That row is a reference, not a real test of the model.</p>
 </section>
 
 <section id="quiz" class="wrap">
-  <h2><span class="num">5</span> Your turn: be the decider</h2>
-  <p>Ten real frames from the rule-based program's games. You get the picture (the models get
-    only the numbers below it). Pick an action; then see what the code did.</p>
+  <h2>Your turn</h2>
+  <p>Ten real frames. Pick a move, then see what the program did.</p>
   <div class="quiz" id="quiz-box"></div>
-  <p class="note">A model makes this choice about 700 times in a short game, in under a
-    tenth of a second each time for JEV.</p>
 </section>
 
 <section id="scores" class="wrap">
-  <h2><span class="num">6</span> The scoreboard</h2>
-  <p>Mean score on evaluation seeds 101-105, turn mode (the game waits for every decision).
-    <span class="tag entry">entry</span></p>
+  <h2>The scoreboard</h2>
   <div class="toggle" role="group" aria-label="Measure">
     <button data-metric="score" aria-pressed="true">Score</button>
     <button data-metric="latency_ms" aria-pressed="false">Time per decision</button>
@@ -166,82 +118,55 @@
 </section>
 
 <section id="speed" class="wrap">
-  <h2><span class="num">7</span> Fast versus slow</h2>
-  <p>In <dfn data-term="modes">realtime mode</dfn> the game does not wait. While a model
-    thinks, the aliens keep moving and bullets keep falling. At 60 frames a second:</p>
+  <h2>Fast versus slow</h2>
+  <p>In <dfn data-term="modes">realtime</dfn> the game does not wait. Frames that pass while each one thinks:</p>
   <div id="frames-chart" class="chart"></div>
-  <p id="speed-summary"></p>
+  <p id="speed-summary" class="small"></p>
 </section>
 
 <section id="waves" class="wrap">
-  <h2><span class="num">8</span> Why do games end?</h2>
-  <p>Almost never by bullets. The aliens land. Each new wave starts 10 pixels lower, and wave 5
-    starts right at the landing line.</p>
+  <h2>Why games end</h2>
+  <p>The aliens land. Each wave starts lower; wave 5 starts at the line.</p>
   <div id="waves-chart" class="chart"></div>
-  <p class="small">Code v5 on tuning seeds 1-99. <span class="tag after">after the deadline</span></p>
 </section>
 
 <section id="after" class="wrap">
-  <h2><span class="num">9</span> After the deadline</h2>
-  <p class="banner">Everything in this chapter was measured after the entry was submitted. It is
-    not part of the entry.</p>
+  <h2>After the deadline</h2>
+  <p class="banner">Measured after the entry was submitted; not part of it.</p>
   <h3>The program got better</h3>
   <div id="versions-chart" class="chart"></div>
-  <ol class="rules" id="rules"></ol>
-  <details><summary>Ideas that made it worse</summary><ul id="failed"></ul></details>
-
-  <h3>What if we tell the models how to win?</h3>
-  <p>We added the program's strategy to the question, in plain words, and asked each model to
-    decide 300 real frames. Share of right answers, without and with the strategy:</p>
+  <details><summary>The three rules, and ideas that failed</summary><ol class="rules" id="rules"></ol><ul id="failed"></ul></details>
+  <h3>Telling the models how to win</h3>
   <div id="strategy-chart" class="chart"></div>
-  <p class="small">The "fire when lined up" frames are all lined up, so a player that always fires
-    scores 100% there. The next section shows that this is what JEV does.</p>
-  <p id="strategy-summary"></p>
-
+  <p id="strategy-summary" class="small"></p>
   <h3>Can JEV read the situation?</h3>
-  <p>JEV's guide says to ask one narrow question at a time, and many of them fit in one request at
-    no extra cost. So we asked four yes/no and small-choice questions about each of 300 frames
-    (Tier 1, positions only) and compared the answers with the program's own calculations.</p>
   <div id="narrow-table"></div>
-  <p id="narrow-summary"></p>
-
-  <h3>Let JEV choose the goal, and code do the rest</h3>
-  <p>TypeSafe's own guide says: keep known rules, calculations and execution in code; ask the
-    model for the judgment. So we asked JEV one narrower question, "which target rule should
-    the ship follow now?", and let code aim, fire and dodge.</p>
+  <p id="narrow-summary" class="small"></p>
+  <h3>JEV picks the goal, code does the rest</h3>
   <div id="goal-chart" class="chart"></div>
 </section>
 
 <section id="fair" class="wrap">
-  <h2><span class="num">10</span> Check it yourself</h2>
+  <h2>Check it yourself</h2>
   <ul class="checks">
-    <li><strong>Separate seeds.</strong> All tuning used seeds 1-99 and 10000+. The results use
-      seeds from 101.</li>
-    <li><strong>Every game is recorded.</strong> <code>results.json</code> is committed after
-      every game; its history is the lab notebook.</li>
-    <li><strong>Replays match.</strong> <code>python -m invaders verify</code> plays every
-      recorded code game again and requires the exact same score.</li>
-    <li><strong>No peeking.</strong> The program uses only what the screen shows. It reads the
-      Atari's memory only for objects that flicker, never the random numbers or the seed.</li>
+    <li>Practice seeds and test seeds are separate.</li>
+    <li>Every game is committed to <a href="https://github.com/13rac1/ufa-2026-09-spaceinvaders/blob/main/results.json">results.json</a>.</li>
+    <li><code>python -m invaders verify</code> replays every program game to the exact score.</li>
+    <li>The program sees only what the screen shows. <a href="https://github.com/13rac1/ufa-2026-09-spaceinvaders/blob/main/FAIR_EVALUATION.md">The rules</a>.</li>
   </ul>
-  <pre class="cmd">python3 -m venv .venv &amp;&amp; .venv/bin/pip install -r requirements.txt
+  <details><summary>Run it</summary><pre class="cmd">python3 -m venv .venv &amp;&amp; .venv/bin/pip install -r requirements.txt
 export TYPESAFE_API_KEY=... ANTHROPIC_API_KEY=...
 .venv/bin/python -m invaders bench --players code,jev-t1,jev-t2,llm-t1,llm-t2 --seeds 101-105 --modes turn
-.venv/bin/python -m invaders verify</pre>
-  <p><a href="https://github.com/13rac1/ufa-2026-09-spaceinvaders/blob/main/results.json">results.json</a>
-    · <a href="https://github.com/13rac1/ufa-2026-09-spaceinvaders/blob/main/FAIR_EVALUATION.md">FAIR_EVALUATION.md</a>
-    · <a href="https://docs.typesafe.ai/">TypeSafe docs</a></p>
+.venv/bin/python -m invaders verify</pre></details>
 </section>
 
 <section id="glossary" class="wrap">
-  <h2>Glossary</h2>
-  <dl id="glossary-list"></dl>
+  <details><summary>Glossary</summary><dl id="glossary-list"></dl></details>
 </section>
 </main>
 
 <footer class="wrap">
-  <p>Built by 13rac1 with Claude. Code under AGPL-3.0. Numbers come from the files in the
-    repository; tags say whether they belong to the entry or came after the deadline.</p>
+  <p>Built by 13rac1 with Claude. AGPL-3.0. Numbers come from the repository's files.</p>
 </footer>
 
 <div id="term-card" class="term-card" role="dialog" aria-modal="false" hidden>

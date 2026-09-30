@@ -252,6 +252,18 @@ function setupAfter() {
     arithmetic in words. <strong>Knowing what to do is not the same as doing it precisely 15 times a second.</strong>
     <span class="tag tuning">tuning seeds</span>`;
 
+  const nq = DATA.narrow;
+  $("#narrow-table").innerHTML = `<table class="data"><thead><tr><th>Question</th><th>JEV right</th>
+    <th>Always guessing the most common answer</th></tr></thead><tbody>${nq.questions.map((q) =>
+    `<tr><td>${esc(q.question)}</td><td>${Math.round(q.right * 100)}%</td><td>${Math.round(q.guess * 100)}%</td></tr>`).join("")}
+    </tbody></table>`;
+  const [fl, nl] = [nq.fired.lined_up, nq.fired.not_lined_up];
+  $("#narrow-summary").innerHTML = `On none of the four questions does JEV beat a constant guess (${nq.frames} frames).
+    In our logged practice games at Tiers 1 and 2 it fired on ${Math.round((100 * fl[0]) / fl[1])}% of the frames where a
+    shot was lined up, and on ${Math.round((100 * nl[0]) / nl[1])}% of the frames where it was not: it fires whenever
+    the gun is ready. Given positions, JEV does not work out the geometry; that is the program's job.
+    <span class="tag tuning">tuning seeds</span>`;
+
   const g = DATA.after.goal;
   const goalRows = [
     { name: "JEV picks each move (Tier 1)", player: "jev-t1", _v: byPlayer["jev-t1"].score, note: "evaluation seeds, entry" },

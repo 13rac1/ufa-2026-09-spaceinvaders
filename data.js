@@ -1408,5 +1408,40 @@ export const DATA = {
   "LEFT",
   "RIGHTFIRE",
   "LEFTFIRE"
- ]
+ ],
+ "narrow": {
+  "questions": [
+   {
+    "question": "Will a bullet hit if the ship stays?",
+    "right": 0.7066666666666667,
+    "guess": 0.75
+   },
+   {
+    "question": "Which side is safe to move to?",
+    "right": 0.8433333333333334,
+    "guess": 0.8533333333333334
+   },
+   {
+    "question": "Where will the nearest target be when a shot arrives?",
+    "right": 0.27666666666666667,
+    "guess": 0.6266666666666667
+   },
+   {
+    "question": "Would a shot fired now hit?",
+    "right": 0.39666666666666667,
+    "guess": 0.64
+   }
+  ],
+  "frames": 300,
+  "fired": {
+   "lined_up": [
+    304,
+    305
+   ],
+   "not_lined_up": [
+    744,
+    746
+   ]
+  }
+ }
 };

@@ -5,6 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Space Invaders, three ways to decide</title>
 <meta name="description" content="A rule-based program, a decision model (JEV) and two LLMs play Atari Space Invaders. What really decides the score? An explainer for the UFA JEV Bake-Off entry.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Space Invaders, three ways to decide">
+<meta property="og:description" content="A rule-based program, a decision model (JEV) and two LLMs play the same Atari game. What really decides the score?">
+<meta property="og:url" content="https://13rac1.github.io/ufa-2026-09-spaceinvaders/">
+<meta property="og:image" content="https://13rac1.github.io/ufa-2026-09-spaceinvaders/assets/social.png">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="640">
+<meta property="og:image:alt" content="Space Invaders, three ways to decide: mean scores on the same five games. Code 2,240, Hold FIRE 285, JEV 221, Qwen 113, Haiku 105; human reference 1,669.">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -185,7 +194,16 @@
   <p>We added the program's strategy to the question, in plain words, and asked each model to
     decide 300 real frames. Share of right answers, without and with the strategy:</p>
   <div id="strategy-chart" class="chart"></div>
+  <p class="small">The "fire when lined up" frames are all lined up, so a player that always fires
+    scores 100% there. The next section shows that this is what JEV does.</p>
   <p id="strategy-summary"></p>
+
+  <h3>Can JEV read the situation?</h3>
+  <p>JEV's guide says to ask one narrow question at a time, and many of them fit in one request at
+    no extra cost. So we asked four yes/no and small-choice questions about each of 300 frames
+    (Tier 1, positions only) and compared the answers with the program's own calculations.</p>
+  <div id="narrow-table"></div>
+  <p id="narrow-summary"></p>
 
   <h3>Let JEV choose the goal, and code do the rest</h3>
   <p>TypeSafe's own guide says: keep known rules, calculations and execution in code; ask the

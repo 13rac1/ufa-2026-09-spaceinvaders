@@ -27,13 +27,13 @@
     <p class="kicker">UFA JEV Bake-Off · Space Invaders</p>
     <h1>Holding FIRE beat the AI.</h1>
     <p class="lede">Just holding the FIRE button outscored <dfn data-term="jev">JEV</dfn> and two
-      <dfn data-term="llm">LLMs</dfn>. A <dfn data-term="code">plain program</dfn> beat all three by
-      more than ten times.</p>
+      <dfn data-term="llm">LLMs</dfn>. A <dfn data-term="code">plain program</dfn>, written by Claude
+      before the games and running no model while it plays, beat all three by more than ten times.</p>
+    <p class="twist">JEV still beat both LLMs, 12x faster and 35x cheaper. During one Haiku decision,
+      an alien bullet falls 64 pixels.</p>
     <div id="hero-chart" class="chart hero-chart"></div>
     <p class="small">Bars: the average of the same five games. Dots: each game. The models got the game as numbers
       (<dfn data-term="tier">Tier 1</dfn>). The program uses no AI while it plays.</p>
-    <p class="twist">The twist: ask a narrower question, and in realtime
-      <a href="#goal">JEV beats Haiku six times over</a>.</p>
     <p class="links"><a href="#watch">Watch</a> · <a href="#why">Why?</a> ·
       <a href="https://github.com/13rac1/ufa-2026-09-spaceinvaders">The repository</a></p>
   </div>
@@ -145,10 +145,6 @@
   <h3>Can JEV read the situation?</h3>
   <div id="narrow-table"></div>
   <p id="narrow-summary" class="small"></p>
-  <h3 id="goal">Ask a narrower question: the model picks the target, code flies</h3>
-  <p>After each kill the model chooses one target rule; the program aims, fires and dodges.
-    Same question for JEV and the LLMs.</p>
-  <div id="goal-chart" class="chart"></div>
 </section>
 
 <section id="fair" class="wrap">

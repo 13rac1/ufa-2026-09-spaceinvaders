@@ -109,10 +109,17 @@ function setupQuiz() {
   let i = 0, right = 0;
   const render = () => {
     if (i >= DATA.quiz.length) {
-      box.innerHTML = `<div><p class="progress">DONE</p></div><div><h3>You matched the code on ${right} of ${DATA.quiz.length}.</h3>
-        <p>You had the picture. A model at Tier 1 gets only the numbers, and must answer each frame in a fraction of a second, hundreds of times a game.</p>
-        <button class="next" id="again">Play again</button></div>`;
+      const share = `I matched the program on ${right} of ${DATA.quiz.length} Space Invaders frames. `
+        + `Holding FIRE beat the AI: ${location.href.split("#")[0]}`;
+      box.innerHTML = `<div><p class="progress">DONE</p></div><div><h3>You matched the program on ${right} of ${DATA.quiz.length}.</h3>
+        <p>JEV, given the same frames as numbers, fires whenever its gun is ready, lined up or not.</p>
+        <button class="next" id="share">Copy a line to share</button> <button class="next" id="again">Play again</button>
+        <p class="small" id="shared" aria-live="polite"></p></div>`;
       $("#again").addEventListener("click", () => { i = 0; right = 0; render(); });
+      $("#share").addEventListener("click", async () => {
+        try { await navigator.clipboard.writeText(share); $("#shared").textContent = "Copied."; }
+        catch { $("#shared").textContent = share; }
+      });
       return;
     }
     const q = DATA.quiz[i];
@@ -160,7 +167,8 @@ function setupScores() {
     } else {
       data = rows.map((r) => ({ ...r, _v: r.cost }));
       max = Math.max(...data.map((r) => r._v));
-      value = (r) => (r.cost === 0 ? "$0" : `$${r.cost.toFixed(5)}`);
+      value = (r) => (r.player.startsWith("qwen") ? "self-hosted, not counted"
+        : r.cost === 0 ? "$0" : `$${r.cost.toFixed(5)}`);
     }
     data.sort((a, b) => b._v - a._v);
     $("#score-chart").innerHTML = barChart({
@@ -254,15 +262,6 @@ function setupAfter() {
   $("#narrow-summary").innerHTML = `No better than a constant guess. And it fires whenever the gun is ready:
     ${Math.round((100 * fl[0]) / fl[1])}% when lined up, ${Math.round((100 * nl[0]) / nl[1])}% when not. So it plays like holding FIRE.`;
 
-  const duel = DATA.goal_duel.map((r) => ({ ...r, _v: r.score }));
-  const pick = (p, m) => duel.find((r) => r.player === p && r.mode === m);
-  $("#goal-chart").innerHTML = barChart({
-    rows: duel, max: Math.max(...duel.map((r) => r._v)), left: 260,
-    label: (r) => `${r.name} · ${r.mode === "turn" ? "turn" : "realtime"}`,
-    value: (r) => `${fmt(r._v)}${r.games < 5 ? ` (${r.games} games)` : ""}`, color: (r) => COLOR(r.player),
-  }) + `<p class="small">When the game waits, Haiku picks better targets (${fmt(pick("llm-goal", "turn").score)} against
-    ${fmt(pick("jev-goal", "turn").score)}). When it doesn't, Haiku's second of thinking costs it the game: JEV scores
-    ${fmt(pick("jev-goal", "realtime").score)}, Haiku ${fmt(pick("llm-goal", "realtime").score)}. Evaluation seeds 101-105.</p>`;
 }
 
 function setupHero() {

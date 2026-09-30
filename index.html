@@ -59,9 +59,9 @@
     </article>
     <article class="card c-jev">
       <h3>JEV</h3>
-      <p class="what">A <dfn data-term="jev">decision model</dfn> from TypeSafe. You send it facts
-        and a multiple-choice question; it returns one choice with probabilities. It does not
-        write text.</p>
+      <p class="what">A <dfn data-term="jev">decision model</dfn> from TypeSafe. It is built on a
+        large language model too, but it does not write an answer: it reads the probability of
+        each option directly. That is why it is fast, and why its percentages mean something.</p>
       <p class="facts"><span>≈ 93 ms per decision</span><span>≈ $0.00004</span></p>
       <p class="good">Good at: fast judgments between a few options.</p>
     </article>
@@ -69,7 +69,7 @@
       <h3>LLMs</h3>
       <p class="what"><dfn data-term="llm">Large language models</dfn>: Claude Haiku 4.5 and
         Qwen3.8 27B (open weights, through Ollama). They read the same question and write their answer
-        as text.</p>
+        as text, word by word, which is why they are slower.</p>
       <p class="facts"><span>≈ 1.1 s (Haiku), ≈ 2.4 s (Qwen)</span><span>≈ $0.0014 (Haiku)</span></p>
       <p class="good">Good at: reading and reasoning in words.</p>
     </article>

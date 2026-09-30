@@ -6,13 +6,13 @@ export const DATA = {
     "name": "Code",
     "input": "its own rules",
     "games": 5,
-    "score": 2240,
+    "score": 3180,
     "scores": [
-     1570.0,
-     1745.0,
-     2230.0,
-     2465.0,
-     3190.0
+     800.0,
+     3570.0,
+     3780.0,
+     3785.0,
+     3965.0
     ],
     "latency_ms": 0.0,
     "cost": 0.0
@@ -32,6 +32,54 @@ export const DATA = {
     ],
     "latency_ms": 98.62,
     "cost": 5.6455564815516325e-05
+   },
+   {
+    "player": "llm-goal",
+    "name": "Haiku 4.5",
+    "input": "Goal: picks the target rule, code flies",
+    "games": 5,
+    "score": 1645,
+    "scores": [
+     1175.0,
+     1200.0,
+     1230.0,
+     1860.0,
+     2760.0
+    ],
+    "latency_ms": 0.07,
+    "cost": 6.469421841541756e-05
+   },
+   {
+    "player": "jev-goal",
+    "name": "JEV",
+    "input": "Goal: picks the target rule, code flies",
+    "games": 5,
+    "score": 1304,
+    "scores": [
+     365.0,
+     1175.0,
+     1375.0,
+     1695.0,
+     1910.0
+    ],
+    "latency_ms": 0.05,
+    "cost": 1.951442646023927e-06
+   },
+   {
+    "player": "qwen-goal",
+    "name": "Qwen3.8 27B",
+    "input": "Goal: picks the target rule, code flies",
+    "games": 5,
+    "score": 1296,
+    "scores": [
+     570.0,
+     1010.0,
+     1020.0,
+     1305.0,
+     2575.0
+    ],
+    "latency_ms": 0.05,
+    "cost": 0.0
    },
    {
     "player": "always-fire",
@@ -161,7 +209,7 @@ export const DATA = {
   ],
   "human": 1668.7,
   "random_ref": 148.0,
-  "code_all": 2306,
+  "code_all": 2682,
   "code_all_n": 20,
   "realtime": {
    "jev": [
@@ -169,8 +217,8 @@ export const DATA = {
     198
    ],
    "code": [
-    2240,
-    2240
+    3180,
+    3180
    ]
   }
  },
@@ -1431,10 +1479,6 @@ export const DATA = {
    ],
    "jev_games": 174
   },
-  "goal": {
-   "jev_goal": 1494,
-   "games": 5
-  },
   "waves": [
    {
     "wave": 1,
@@ -1510,5 +1554,77 @@ export const DATA = {
     746
    ]
   }
- }
+ },
+ "goal_duel": [
+  {
+   "player": "jev-goal",
+   "name": "JEV",
+   "mode": "turn",
+   "games": 5,
+   "score": 1304,
+   "scores": [
+    365.0,
+    1175.0,
+    1375.0,
+    1695.0,
+    1910.0
+   ]
+  },
+  {
+   "player": "jev-goal",
+   "name": "JEV",
+   "mode": "realtime",
+   "games": 5,
+   "score": 1409,
+   "scores": [
+    410.0,
+    520.0,
+    1540.0,
+    2280.0,
+    2295.0
+   ]
+  },
+  {
+   "player": "llm-goal",
+   "name": "Haiku 4.5",
+   "mode": "turn",
+   "games": 5,
+   "score": 1645,
+   "scores": [
+    1175.0,
+    1200.0,
+    1230.0,
+    1860.0,
+    2760.0
+   ]
+  },
+  {
+   "player": "llm-goal",
+   "name": "Haiku 4.5",
+   "mode": "realtime",
+   "games": 5,
+   "score": 234,
+   "scores": [
+    110.0,
+    215.0,
+    215.0,
+    305.0,
+    325.0
+   ]
+  },
+  {
+   "player": "qwen-goal",
+   "name": "Qwen3.8 27B",
+   "mode": "turn",
+   "games": 5,
+   "score": 1296,
+   "scores": [
+    570.0,
+    1010.0,
+    1020.0,
+    1305.0,
+    2575.0
+   ]
+  }
+ ]
 };

@@ -220,7 +220,7 @@ function setupAfter() {
     rows: versions, max: Math.max(...versions.map((r) => r._v)),
     label: (r) => `${r.name} (${r.games} games)`, value: (r) => fmt(r.score), color: () => css("--code"),
     line: DATA.entry.human, lineLabel: "human reference",
-  }) + `<p class="small">Evaluation seeds 101-120. v3 is the entry; v5's best rule came from watching the video.</p>`;
+  }) + `<p class="small">Evaluation seeds 101-120. v5's best rule, the lowest row first in the last drop, came from watching the video.</p>`;
   $("#rules").innerHTML = DATA.after.code_steps.map((s) =>
     `<li><span class="v">${s.version}</span>${esc(s.rule)} <span class="small">(${esc(s.tuning)})</span></li>`).join("");
   $("#failed").innerHTML = DATA.after.failed.map(([idea, d]) => `<li>Failed: ${esc(idea)} (${esc(d)} per game)</li>`).join("");
@@ -254,16 +254,15 @@ function setupAfter() {
   $("#narrow-summary").innerHTML = `No better than a constant guess. And it fires whenever the gun is ready:
     ${Math.round((100 * fl[0]) / fl[1])}% when lined up, ${Math.round((100 * nl[0]) / nl[1])}% when not. So it plays like holding FIRE.`;
 
-  const g = DATA.after.goal;
-  const goalRows = [
-    { name: "JEV picks each move (Tier 1)", player: "jev-t1", _v: byPlayer["jev-t1"].score, note: "evaluation seeds, entry" },
-    { name: "JEV picks the goal, code executes", player: "jev-goal", _v: g.jev_goal, note: `${g.games} tuning games` },
-    { name: "Code alone (v5)", player: "code", _v: DATA.code_versions.at(-1).score, note: "evaluation seeds" },
-  ];
+  const duel = DATA.goal_duel.map((r) => ({ ...r, _v: r.score }));
+  const pick = (p, m) => duel.find((r) => r.player === p && r.mode === m);
   $("#goal-chart").innerHTML = barChart({
-    rows: goalRows, max: Math.max(...goalRows.map((r) => r._v)), left: 320,
-    label: (r) => r.name, value: (r) => `${fmt(r._v)} (${r.note})`, color: (r) => COLOR(r.player),
-  }) + `<p class="small">Code aims and fires; JEV only picks the target. That is the split TypeSafe's own guide recommends.</p>`;
+    rows: duel, max: Math.max(...duel.map((r) => r._v)), left: 260,
+    label: (r) => `${r.name} · ${r.mode === "turn" ? "turn" : "realtime"}`,
+    value: (r) => `${fmt(r._v)}${r.games < 5 ? ` (${r.games} games)` : ""}`, color: (r) => COLOR(r.player),
+  }) + `<p class="small">When the game waits, Haiku picks better targets (${fmt(pick("llm-goal", "turn").score)} against
+    ${fmt(pick("jev-goal", "turn").score)}). When it doesn't, Haiku's second of thinking costs it the game: JEV scores
+    ${fmt(pick("jev-goal", "realtime").score)}, Haiku ${fmt(pick("llm-goal", "realtime").score)}. Evaluation seeds 101-105.</p>`;
 }
 
 function setupHero() {

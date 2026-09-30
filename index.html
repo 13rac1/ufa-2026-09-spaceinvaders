@@ -28,10 +28,12 @@
     <h1>Holding FIRE beat the AI.</h1>
     <p class="lede">Just holding the FIRE button outscored <dfn data-term="jev">JEV</dfn> and two
       <dfn data-term="llm">LLMs</dfn>. A <dfn data-term="code">plain program</dfn> beat all three by
-      10 to 20 times.</p>
+      more than ten times.</p>
     <div id="hero-chart" class="chart hero-chart"></div>
     <p class="small">Bars: the average of the same five games. Dots: each game. The models got the game as numbers
       (<dfn data-term="tier">Tier 1</dfn>). The program uses no AI while it plays.</p>
+    <p class="twist">The twist: ask a narrower question, and in realtime
+      <a href="#goal">JEV beats Haiku six times over</a>.</p>
     <p class="links"><a href="#watch">Watch</a> · <a href="#why">Why?</a> ·
       <a href="https://github.com/13rac1/ufa-2026-09-spaceinvaders">The repository</a></p>
   </div>
@@ -40,7 +42,7 @@
 <nav class="chapters" aria-label="Chapters">
   <a href="#watch">Watch</a><a href="#why">Why</a><a href="#tiers">Tiers</a><a href="#quiz">Your turn</a>
   <a href="#scores">Scores</a><a href="#speed">Speed</a><a href="#waves">Endings</a>
-  <a href="#after">Afterwards</a><a href="#fair">Check it</a>
+  <a href="#after">Further</a><a href="#fair">Check it</a>
 </nav>
 
 <main>
@@ -49,7 +51,7 @@
   <figure class="video">
     <video src="assets/six-players.mp4" poster="assets/six-players.jpg" controls muted playsinline loop preload="metadata"></video>
     <figcaption>One game (seed 119), 3x speed. Top: the program, JEV, Claude Haiku 4.5. Bottom: Qwen3.8 27B,
-      hold FIRE, random buttons. <span class="tag after">code v5</span></figcaption>
+      hold FIRE, random buttons.</figcaption>
   </figure>
   <p class="note">In this game JEV beat holding FIRE, 425 to 285. Over the five test games it averaged 221
     and beat FIRE in two of them. Single games vary a lot; the chart above shows every game.</p>
@@ -133,8 +135,7 @@
 </section>
 
 <section id="after" class="wrap">
-  <h2>After the deadline</h2>
-  <p class="banner">Measured after the entry was submitted; not part of it.</p>
+  <h2>Going further</h2>
   <h3>The program got better</h3>
   <div id="versions-chart" class="chart"></div>
   <details><summary>The three rules, and ideas that failed</summary><ol class="rules" id="rules"></ol><ul id="failed"></ul></details>
@@ -144,7 +145,9 @@
   <h3>Can JEV read the situation?</h3>
   <div id="narrow-table"></div>
   <p id="narrow-summary" class="small"></p>
-  <h3>JEV picks the goal, code does the rest</h3>
+  <h3 id="goal">Ask a narrower question: the model picks the target, code flies</h3>
+  <p>After each kill the model chooses one target rule; the program aims, fires and dodges.
+    Same question for JEV and the LLMs.</p>
   <div id="goal-chart" class="chart"></div>
 </section>
 

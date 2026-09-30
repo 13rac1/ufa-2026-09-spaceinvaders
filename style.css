@@ -145,3 +145,4 @@ table.data td:not(:first-child), table.data th:not(:first-child) { font-family: 
 .hhuman span { position: absolute; bottom: -22px; transform: translateX(-50%); font: 13px var(--mono); color: var(--magenta); white-space: nowrap; }
 .hdot { position: absolute; top: 50%; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%;
   background: #fff; border: 2px solid; box-sizing: border-box; opacity: .95; }
+.twist { font-size: 19px; font-weight: 700; margin: 4px 0 10px; }

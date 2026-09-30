@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Space Invaders, three ways to decide</title>
-<meta name="description" content="Holding FIRE beat JEV and two LLMs at Atari Space Invaders. The Code Autopilot, seeing the same screen, beat all three by more than ten times. Why, explained.">
+<meta name="description" content="Holding FIRE beat two LLMs and matched JEV at Atari Space Invaders. The Code Autopilot, seeing the same screen, beat all three by more than ten times. Why, explained.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Space Invaders, three ways to decide">
-<meta property="og:description" content="Holding FIRE beat JEV and two LLMs at Atari Space Invaders. The Code Autopilot, seeing the same screen, beat all three by more than ten times.">
+<meta property="og:description" content="Holding FIRE beat two LLMs and matched JEV at Atari Space Invaders. The Code Autopilot, seeing the same screen, beat all three by more than ten times.">
 <meta property="og:url" content="https://13rac1.github.io/ufa-2026-09-spaceinvaders/">
 <meta property="og:image" content="https://13rac1.github.io/ufa-2026-09-spaceinvaders/assets/social.png">
 <meta property="og:image:width" content="1280">
 <meta property="og:image:height" content="640">
-<meta property="og:image:alt" content="Space Invaders, three ways to decide: mean scores on the same five games. Code 2,240, Hold FIRE 285, JEV 221, Qwen 113, Haiku 105; human reference 1,669.">
+<meta property="og:image:alt" content="Space Invaders, three ways to decide: mean scores on the same five games. Code Autopilot 3,180, Hold FIRE 285, JEV 221, Random 125, Qwen 113, Haiku 105; human reference 1,669.">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,7 +33,7 @@
           seconds to think is already dead. A decision model answers in about the time one frame takes.
           Prove it.</q> We tested it: the same game, the same seeds, every decision measured.</p>
         <h1>Holding FIRE<br>beat the AI.</h1>
-        <p class="lede">Just holding the FIRE button outscored JEV and two LLMs. The
+        <p class="lede">Just holding the FIRE button outscored two LLMs and matched JEV. The
           <dfn data-term="code">Code Autopilot</dfn>, running no model while it plays, beat all three by
           more than ten times.</p>
         <p class="twist">JEV still beat both LLMs, 12x faster and 35x cheaper. During one Haiku decision,
@@ -67,8 +67,11 @@
     <figcaption>One game (seed 119), 3x speed. Top: the autopilot, JEV, Claude Haiku 4.5. Bottom: Qwen3.8 27B,
       hold FIRE, random buttons.</figcaption>
   </figure>
-  <p class="note">In this game JEV beat holding FIRE, 425 to 285. Over the five test games it averaged 221
-    and beat FIRE in two of them. Single games vary a lot; the chart above shows every game.</p>
+  <p class="note">In this game JEV beat holding FIRE, 425 to 285. Holding FIRE scores 285 in every game: the game
+    has no randomness of its own, and the seed only changes when a button press repeats, which cannot
+    change a player that always presses FIRE. JEV's 11 recorded games range from 105 to 660 and
+    average 296, level with FIRE. Over the five test games it averaged 221 and beat FIRE in two of
+    them. The chart above shows every game.</p>
 </section>
 
 <section id="why" class="wrap">

@@ -13,7 +13,7 @@ const COLOR = (player) =>
   : css("--floor");
 
 const TERMS = {
-  code: ["Rule-based program (code)", "A program with fixed rules: dodge a bullet, pick the target, aim ahead, fire. An AI coding agent (Claude) wrote and tuned the rules before the games, on practice seeds only. While it plays, no model runs; each decision takes under 0.1 ms."],
+  code: ["Rule-based program (code)", "A program with fixed rules: dodge a bullet, pick the target, aim ahead, fire. It sees the same screen as the models, plus what it saw a moment ago; nothing hidden. An AI coding agent (Claude) wrote and tuned the rules before the games, on practice seeds only. While it plays, no model runs; each decision takes under 0.1 ms."],
   jev: ["JEV", "TypeSafe's decision model, a \"System One\" model. It is built on a pretrained language model, but instead of writing an answer it reads the probability of every option in one pass (TypeSafe: it \"outputs all probabilities in parallel instead of autoregressively generating by token\"). It gets facts (JSON) and questions with fixed options and answers in about a tenth of a second. It does not write text or explain itself."],
   llm: ["LLM", "Large language model, like the ones behind chatbots. It reads a prompt and writes an answer word by word. Here: Claude Haiku 4.5 (Anthropic) and Qwen3.8 27B (open weights). It is slower than JEV because it generates its answer one token at a time, even when the answer is one word."],
   systemone: ["System One protocol and adapter", "The request format JEV uses: state + questions, answered with typed choices. The organizers' adapter lets an LLM answer the same request, so both get exactly the same question."],

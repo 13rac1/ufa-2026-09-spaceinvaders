@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Space Invaders, three ways to decide</title>
-<meta name="description" content="Holding FIRE beat JEV and two LLMs at Atari Space Invaders. A plain program beat them all by 10 to 20 times. Why, explained.">
+<meta name="description" content="Holding FIRE beat JEV and two LLMs at Atari Space Invaders. A plain program, seeing the same screen, beat all three by more than ten times. Why, explained.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Space Invaders, three ways to decide">
-<meta property="og:description" content="Holding FIRE beat JEV and two LLMs at Atari Space Invaders. A plain program beat them all by 10 to 20 times.">
+<meta property="og:description" content="Holding FIRE beat JEV and two LLMs at Atari Space Invaders. A plain program, seeing the same screen, beat all three by more than ten times.">
 <meta property="og:url" content="https://13rac1.github.io/ufa-2026-09-spaceinvaders/">
 <meta property="og:image" content="https://13rac1.github.io/ufa-2026-09-spaceinvaders/assets/social.png">
 <meta property="og:image:width" content="1280">
@@ -33,7 +33,7 @@
       an alien bullet falls 64 pixels.</p>
     <div id="hero-chart" class="chart hero-chart"></div>
     <p class="small">Bars: the average of the same five games. Dots: each game. The models got the game as numbers
-      (<dfn data-term="tier">Tier 1</dfn>). The program uses no AI while it plays.</p>
+      (<dfn data-term="tier">Tier 1</dfn>). The program sees the same screen and uses no AI while it plays.</p>
     <p class="links"><a href="#watch">Watch</a> · <a href="#why">Why?</a> ·
       <a href="https://github.com/13rac1/ufa-2026-09-spaceinvaders">The repository</a></p>
   </div>
@@ -73,8 +73,9 @@
       <p class="what">Hold FIRE, or press random buttons. Anyone should beat these.</p>
       <p class="facts"><span>&lt; 0.1 ms</span><span>$0</span></p></article>
   </div>
-  <p class="note">The short answer: the game is fully known, so everything can be calculated. The program
-    calculates. The models have to guess where an alien will be when a shot arrives, and mostly can't.</p>
+  <p class="note">The short answer: the program sees the same screen as the models, and no more (like
+    any player, it remembers what it saw a moment ago). It calculates where an alien will be when a shot
+    arrives. The models have to guess, and mostly can't.</p>
   <div class="flow">
     <figure class="frame"><img id="example-frame" alt="A game frame: the ship at the bottom, rows of aliens, three shields, an alien bullet." width="240" height="315"></figure>
     <div>
@@ -153,7 +154,8 @@
     <li>Practice seeds and test seeds are separate.</li>
     <li>Every game is committed to <a href="https://github.com/13rac1/ufa-2026-09-spaceinvaders/blob/main/results.json">results.json</a>.</li>
     <li><code>python -m invaders verify</code> replays every program game to the exact score.</li>
-    <li>The program sees only what the screen shows. <a href="https://github.com/13rac1/ufa-2026-09-spaceinvaders/blob/main/FAIR_EVALUATION.md">The rules</a>.</li>
+    <li>The program sees what the models are told: the screen, plus what it saw a moment ago.
+      No hidden game memory, no seed, no look-ahead. <a href="https://github.com/13rac1/ufa-2026-09-spaceinvaders/blob/main/FAIR_EVALUATION.md">The rules</a>.</li>
   </ul>
   <details><summary>Run it</summary><pre class="cmd">python3 -m venv .venv &amp;&amp; .venv/bin/pip install -r requirements.txt
 export TYPESAFE_API_KEY=... ANTHROPIC_API_KEY=...

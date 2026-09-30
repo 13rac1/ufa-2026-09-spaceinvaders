@@ -228,7 +228,7 @@ function setupAfter() {
     rows: versions, max: Math.max(...versions.map((r) => r._v)),
     label: (r) => `${r.name} (${r.games} games)`, value: (r) => fmt(r.score), color: () => css("--code"),
     line: DATA.entry.human, lineLabel: "human reference",
-  }) + `<p class="small">Evaluation seeds 101-120. v5's best rule, the lowest row first in the last drop, came from watching the video.</p>`;
+  }) + `<p class="small">Evaluation seeds 101-120. Before these: v1 scored 891 and v2 1,562. Each version took thousands of practice games; v5's best rule, the lowest row first in the last drop, came from the operator watching the video.</p>`;
   $("#rules").innerHTML = DATA.after.code_steps.map((s) =>
     `<li><span class="v">${s.version}</span>${esc(s.rule)} <span class="small">(${esc(s.tuning)})</span></li>`).join("");
   $("#failed").innerHTML = DATA.after.failed.map(([idea, d]) => `<li>Failed: ${esc(idea)} (${esc(d)} per game)</li>`).join("");

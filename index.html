@@ -155,9 +155,17 @@
   <div id="versions-chart" class="chart"></div>
   <details><summary>The three rules, and ideas that failed</summary><ol class="rules" id="rules"></ol><ul id="failed"></ul></details>
   <h3>Telling the models how to win</h3>
+  <p>Maybe the models lose because nobody told them the strategy. So we added the autopilot's
+    strategy to the question, in plain words: dodge, aim at the lowest alien of the nearer edge column,
+    aim ahead of it, fire when lined up. Then we asked each model to choose a move for 300 real frames
+    and checked each answer against what the autopilot did.</p>
   <div id="strategy-chart" class="chart"></div>
   <p id="strategy-summary" class="small"></p>
   <h3>Can JEV read the situation?</h3>
+  <p>Maybe choosing between six buttons at once is too much. JEV's guide recommends narrow questions,
+    and many fit in one request at no extra cost. So for the same 300 frames we asked JEV four simple
+    questions, giving it only the positions (Tier 1), and compared its answers with the autopilot's own
+    calculations. To be useful, an answer has to beat always guessing the most common answer.</p>
   <div id="narrow-table"></div>
   <p id="narrow-summary" class="small"></p>
 </section>

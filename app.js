@@ -13,7 +13,7 @@ const COLOR = (player) =>
   : css("--floor");
 
 const TERMS = {
-  code: ["Rule-based program (code)", "A program with fixed rules: dodge a bullet, pick the target, aim ahead, fire. It sees the same screen as the models, plus what it saw a moment ago; nothing hidden. An AI coding agent (Claude) wrote and tuned the rules before the games, on practice seeds only. While it plays, no model runs; each decision takes under 0.1 ms."],
+  code: ["Code Autopilot", "A rule-based player with fixed rules: dodge a bullet, pick the target, aim ahead, fire. It sees the same screen as the models, plus what it saw a moment ago; nothing hidden. An AI coding agent (Claude) wrote and tuned the rules on practice seeds only. While it plays, no model runs; each decision takes under 0.1 ms."],
   jev: ["JEV", "TypeSafe's decision model, a \"System One\" model. It is built on a pretrained language model, but instead of writing an answer it reads the probability of every option in one pass (TypeSafe: it \"outputs all probabilities in parallel instead of autoregressively generating by token\"). It gets facts (JSON) and questions with fixed options and answers in about a tenth of a second. It does not write text or explain itself."],
   llm: ["LLM", "Large language model, like the ones behind chatbots. It reads a prompt and writes an answer word by word. Here: Claude Haiku 4.5 (Anthropic) and Qwen3.8 27B (open weights). It is slower than JEV because it generates its answer one token at a time, even when the answer is one word."],
   systemone: ["System One protocol and adapter", "The request format JEV uses: state + questions, answered with typed choices. The organizers' adapter lets an LLM answer the same request, so both get exactly the same question."],
@@ -83,7 +83,7 @@ const byPlayer = Object.fromEntries(DATA.entry.rows.map((r) => [r.player, r]));
 const TIER_TEXT = {
   1: "Positions only. The model must work out where each alien will be when a shot arrives.",
   2: "The same facts with distances and timings worked out. The target is still the model's choice.",
-  3: "The program's own verdicts: what is safe, what to aim at. Here the program decides and JEV agrees.",
+  3: "The autopilot's own verdicts: what is safe, what to aim at. Here the autopilot decides and JEV agrees.",
 };
 const TIER_PLAYERS = { 1: ["jev-t1", "qwen-t1", "llm-t1"], 2: ["jev-t2", "qwen-t2", "llm-t2"], 3: ["jev-t3"] };
 
@@ -109,9 +109,9 @@ function setupQuiz() {
   let i = 0, right = 0;
   const render = () => {
     if (i >= DATA.quiz.length) {
-      const share = `I matched the program on ${right} of ${DATA.quiz.length} Space Invaders frames. `
+      const share = `I matched the autopilot on ${right} of ${DATA.quiz.length} Space Invaders frames. `
         + `Holding FIRE beat the AI: ${location.href.split("#")[0]}`;
-      box.innerHTML = `<div><p class="progress">DONE</p></div><div><h3>You matched the program on ${right} of ${DATA.quiz.length}.</h3>
+      box.innerHTML = `<div><p class="progress">DONE</p></div><div><h3>You matched the autopilot on ${right} of ${DATA.quiz.length}.</h3>
         <p>JEV, given the same frames as numbers, fires whenever its gun is ready, lined up or not.</p>
         <button class="next" id="share">Copy a line to share</button> <button class="next" id="again">Play again</button>
         <p class="small" id="shared" aria-live="polite"></p></div>`;
@@ -197,7 +197,7 @@ function setupSpeed() {
   const [jevTurn, jevReal] = DATA.entry.realtime.jev;
   const [codeTurn, codeReal] = DATA.entry.realtime.code;
   $("#speed-summary").innerHTML = `A bullet falls 1 px per frame. In realtime JEV keeps ${Math.round((100 * jevReal) / jevTurn)}% of its score;
-    the program loses nothing (${fmt(codeReal)}).`;
+    the autopilot loses nothing (${fmt(codeReal)}).`;
 }
 
 /* ---------- chapter 8: waves ---------- */
@@ -250,7 +250,7 @@ function setupAfter() {
     });
   });
   $("#strategy-chart").innerHTML = s + "</svg>";
-  $("#strategy-summary").innerHTML = `Right answers on 300 frames, without and with the program's strategy in the question.
+  $("#strategy-summary").innerHTML = `Right answers on 300 frames, without and with the autopilot's strategy in the question.
     JEV moves more, but in real games it scored ${st.jev_games}: <strong>knowing what to do is not doing it.</strong>`;
 
   const nq = DATA.narrow;
@@ -265,8 +265,8 @@ function setupAfter() {
 }
 
 function setupHero() {
-  const order = ["code", "always-fire", "jev-t1", "qwen-t1", "llm-t1"];
-  const names = { code: "Program", "always-fire": "Hold FIRE", "jev-t1": "JEV", "qwen-t1": "Qwen", "llm-t1": "Haiku" };
+  const order = ["code", "always-fire", "jev-t1", "random", "qwen-t1", "llm-t1"];
+  const names = { code: "Code Autopilot", "always-fire": "Hold FIRE", "jev-t1": "JEV", random: "Random", "qwen-t1": "Qwen", "llm-t1": "Haiku" };
   // HTML bars, not SVG: the text keeps its size on a phone.
   const max = Math.max(...order.flatMap((p) => byPlayer[p].scores)) * 1.03;
   const pct = (v) => `${(100 * v) / max}%`;

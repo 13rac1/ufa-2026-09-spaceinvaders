@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Space Invaders, three ways to decide</title>
-<meta name="description" content="Holding FIRE beat JEV and two LLMs at Atari Space Invaders. A plain program, seeing the same screen, beat all three by more than ten times. Why, explained.">
+<meta name="description" content="Holding FIRE beat JEV and two LLMs at Atari Space Invaders. The Code Autopilot, seeing the same screen, beat all three by more than ten times. Why, explained.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Space Invaders, three ways to decide">
-<meta property="og:description" content="Holding FIRE beat JEV and two LLMs at Atari Space Invaders. A plain program, seeing the same screen, beat all three by more than ten times.">
+<meta property="og:description" content="Holding FIRE beat JEV and two LLMs at Atari Space Invaders. The Code Autopilot, seeing the same screen, beat all three by more than ten times.">
 <meta property="og:url" content="https://13rac1.github.io/ufa-2026-09-spaceinvaders/">
 <meta property="og:image" content="https://13rac1.github.io/ufa-2026-09-spaceinvaders/assets/social.png">
 <meta property="og:image:width" content="1280">
@@ -27,13 +27,12 @@
     <p class="kicker">UFA JEV Bake-Off · Space Invaders</p>
     <h1>Holding FIRE beat the AI.</h1>
     <p class="lede">Just holding the FIRE button outscored <dfn data-term="jev">JEV</dfn> and two
-      <dfn data-term="llm">LLMs</dfn>. A <dfn data-term="code">plain program</dfn>, written by Claude
-      before the games and running no model while it plays, beat all three by more than ten times.</p>
+      <dfn data-term="llm">LLMs</dfn>. The <dfn data-term="code">Code Autopilot</dfn>, running no model while it plays, beat all three by more than ten times.</p>
     <p class="twist">JEV still beat both LLMs, 12x faster and 35x cheaper. During one Haiku decision,
       an alien bullet falls 64 pixels.</p>
     <div id="hero-chart" class="chart hero-chart"></div>
     <p class="small">Bars: the average of the same five games. Dots: each game. The models got the game as numbers
-      (<dfn data-term="tier">Tier 1</dfn>). The program sees the same screen and uses no AI while it plays.</p>
+      (<dfn data-term="tier">Tier 1</dfn>). The autopilot sees the same screen and uses no AI while it plays.</p>
     <p class="links"><a href="#watch">Watch</a> · <a href="#why">Why?</a> ·
       <a href="https://github.com/13rac1/ufa-2026-09-spaceinvaders">The repository</a></p>
   </div>
@@ -50,7 +49,7 @@
   <h2>Watch them play</h2>
   <figure class="video">
     <video src="assets/six-players.mp4" poster="assets/six-players.jpg" controls muted playsinline loop preload="metadata"></video>
-    <figcaption>One game (seed 119), 3x speed. Top: the program, JEV, Claude Haiku 4.5. Bottom: Qwen3.8 27B,
+    <figcaption>One game (seed 119), 3x speed. Top: the autopilot, JEV, Claude Haiku 4.5. Bottom: Qwen3.8 27B,
       hold FIRE, random buttons.</figcaption>
   </figure>
   <p class="note">In this game JEV beat holding FIRE, 425 to 285. Over the five test games it averaged 221
@@ -60,8 +59,8 @@
 <section id="why" class="wrap">
   <h2>Why? Who is playing</h2>
   <div class="cards four">
-    <article class="card c-code"><h3>Code</h3>
-      <p class="what">Rules written before the games by an AI coding agent (Claude) with the operator: five versions, tens of thousands of practice games. No model runs while it plays.</p>
+    <article class="card c-code"><h3>Code Autopilot</h3>
+      <p class="what">Rules written by an AI coding agent (Claude) with the operator: five versions, tens of thousands of practice games. No model runs while it plays.</p>
       <p class="facts"><span>&lt; 0.1 ms</span><span>$0</span></p></article>
     <article class="card c-jev"><h3>JEV</h3>
       <p class="what">TypeSafe's decision model. Built on a language model, but it reads the odds of each option instead of writing an answer.</p>
@@ -73,7 +72,7 @@
       <p class="what">Hold FIRE, or press random buttons. Anyone should beat these.</p>
       <p class="facts"><span>&lt; 0.1 ms</span><span>$0</span></p></article>
   </div>
-  <p class="note">The short answer: the program sees the same screen as the models, and no more (like
+  <p class="note">The short answer: the autopilot sees the same screen as the models, and no more (like
     any player, it remembers what it saw a moment ago). It calculates where an alien will be when a shot
     arrives. The models have to guess, and mostly can't.</p>
   <div class="flow">
@@ -92,7 +91,7 @@
 
 <section id="tiers" class="wrap">
   <h2>The hidden setting: how much we calculate first</h2>
-  <p>Hand a model raw positions, or distances already worked out, or the program's own verdicts. The score follows.</p>
+  <p>Hand a model raw positions, or distances already worked out, or the autopilot's own verdicts. The score follows.</p>
   <div class="tabs" role="tablist">
     <button role="tab" data-tier="1" aria-selected="true">Tier 1 · positions</button>
     <button role="tab" data-tier="2" aria-selected="false">Tier 2 · distances</button>
@@ -107,7 +106,7 @@
 
 <section id="quiz" class="wrap">
   <h2>Your turn</h2>
-  <p>Ten real frames. Pick a move, then see what the program did.</p>
+  <p>Ten real frames. Pick a move, then see what the autopilot did.</p>
   <div class="quiz" id="quiz-box"></div>
 </section>
 
@@ -137,7 +136,7 @@
 
 <section id="after" class="wrap">
   <h2>Going further</h2>
-  <h3>The program got better</h3>
+  <h3>The autopilot got better</h3>
   <div id="versions-chart" class="chart"></div>
   <details><summary>The three rules, and ideas that failed</summary><ol class="rules" id="rules"></ol><ul id="failed"></ul></details>
   <h3>Telling the models how to win</h3>
@@ -153,8 +152,8 @@
   <ul class="checks">
     <li>Practice seeds and test seeds are separate.</li>
     <li>Every game is committed to <a href="https://github.com/13rac1/ufa-2026-09-spaceinvaders/blob/main/results.json">results.json</a>.</li>
-    <li><code>python -m invaders verify</code> replays every program game to the exact score.</li>
-    <li>The program sees what the models are told: the screen, plus what it saw a moment ago.
+    <li><code>python -m invaders verify</code> replays every autopilot game to the exact score.</li>
+    <li>The autopilot sees what the models are told: the screen, plus what it saw a moment ago.
       No hidden game memory, no seed, no look-ahead. <a href="https://github.com/13rac1/ufa-2026-09-spaceinvaders/blob/main/FAIR_EVALUATION.md">The rules</a>.</li>
   </ul>
   <details><summary>Run it</summary><pre class="cmd">python3 -m venv .venv &amp;&amp; .venv/bin/pip install -r requirements.txt

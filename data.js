@@ -3,7 +3,7 @@ export const DATA = {
   "rows": [
    {
     "player": "code",
-    "name": "Code",
+    "name": "Code Autopilot",
     "input": "its own rules",
     "games": 5,
     "score": 3180,

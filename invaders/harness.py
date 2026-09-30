@@ -9,7 +9,7 @@ import numpy as np
 
 from invaders.env import make_env
 from invaders.shots import ShotCounter
-from invaders.state import decode
+from invaders.state import FRAMES_PER_STEP, decode
 
 NOOP = 0
 FRAMES_PER_STEP = 4
@@ -54,7 +54,10 @@ def run_game(
     if mode not in ("turn", "realtime"):
         raise ValueError(f"unknown mode: {mode!r}")
 
-    env = make_env()
+    # The Atari draws the player's shot and the alien bullets on alternate frames, so a
+    # video of every 4th frame never shows the bullets. With a video, play frame by frame
+    # (the same game, see make_env) and keep the brighter of each step's last two frames.
+    env = make_env(frameskip=1 if record_video is not None else 4)
     start = time.perf_counter()
 
     if record_video is not None:
@@ -102,12 +105,20 @@ def run_game(
     def take_step(action: int) -> None:
         nonlocal obs, info, score, steps, terminated, truncated
         ram_before = obs
-        obs, reward, terminated, truncated, info = env.step(action)
+        if video_writer is None:
+            obs, reward, terminated, truncated, info = env.step(action)
+        else:
+            reward, screens = 0.0, []
+            for _ in range(FRAMES_PER_STEP):
+                obs, frame_reward, terminated, truncated, info = env.step(action)
+                reward += frame_reward
+                screens.append(env.unwrapped.ale.getScreenRGB())
+                if terminated or truncated:
+                    break
+            video_writer.append_data(np.maximum(*screens[-2:]) if len(screens) > 1 else screens[0])
         shots.step(ram_before, obs, reward)
         score += reward
         steps += 1
-        if video_writer is not None:
-            video_writer.append_data(env.unwrapped.ale.getScreenRGB())
 
     try:
         while steps_left():

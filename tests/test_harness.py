@@ -84,3 +84,17 @@ def test_video_and_log_output(tmp_path):
     assert log_path.exists()
     lines = log_path.read_text().splitlines()
     assert len(lines) == record["decisions"]
+
+
+def test_video_recording_plays_the_same_game(tmp_path):
+    """With a video the harness plays frame by frame; the game must not change."""
+    import imageio.v2 as imageio
+
+    from invaders.players.code_player import CodePlayer
+
+    plain = run_game(CodePlayer(), seed=7, mode="turn", max_steps=600)
+    video = tmp_path / "game.mp4"
+    recorded = run_game(CodePlayer(), seed=7, mode="turn", max_steps=600, record_video=str(video))
+    assert recorded["score"] == plain["score"]
+    assert recorded["steps"] == plain["steps"]
+    assert imageio.get_reader(str(video), format="ffmpeg").count_frames() == plain["steps"]

@@ -146,3 +146,15 @@ table.data td:not(:first-child), table.data th:not(:first-child) { font-family: 
 .hdot { position: absolute; top: 50%; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%;
   background: #fff; border: 2px solid; box-sizing: border-box; opacity: .95; }
 .twist { font-size: 19px; font-weight: 700; margin: 4px 0 10px; }
+.hero-grid { display: grid; grid-template-columns: 1fr 240px; gap: 36px; align-items: start; }
+.hero-frame { margin: 8px 0 0; }
+.hero-frame img { image-rendering: pixelated; border-radius: 10px; border: 1px solid var(--line); background: #000; width: 240px; height: auto; display: block; }
+.hero-frame figcaption { margin-top: 6px; }
+.intro { font-size: 17px; color: var(--muted); max-width: 640px; margin: 0 0 10px; }
+.intro q { font-style: italic; color: var(--ink); }
+.hero h1 { font-size: clamp(38px, 6.5vw, 64px); }
+@media (max-width: 720px) {
+  .hero-grid { grid-template-columns: 1fr; gap: 8px; }
+  .hero-frame { display: grid; grid-template-columns: 110px 1fr; gap: 12px; align-items: center; margin: 0 0 12px; }
+  .hero-frame img { width: 110px; }
+}

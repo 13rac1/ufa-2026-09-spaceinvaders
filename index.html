@@ -24,12 +24,27 @@
 <body>
 <header class="top">
   <div class="wrap hero">
-    <p class="kicker">UFA JEV Bake-Off · Space Invaders</p>
-    <h1>Holding FIRE beat the AI.</h1>
-    <p class="lede">Just holding the FIRE button outscored <dfn data-term="jev">JEV</dfn> and two
-      <dfn data-term="llm">LLMs</dfn>. The <dfn data-term="code">Code Autopilot</dfn>, running no model while it plays, beat all three by more than ten times.</p>
-    <p class="twist">JEV still beat both LLMs, 12x faster and 35x cheaper. During one Haiku decision,
-      an alien bullet falls 64 pixels.</p>
+    <div class="hero-grid">
+      <div>
+        <p class="kicker">UFA JEV Bake-Off · Atari Space Invaders · September 2026</p>
+        <p class="intro">The <a href="https://ufa.foundation/jev/space-invaders/">UFA JEV Bake-Off</a> asked
+          builders to play Atari Space Invaders with <dfn data-term="jev">JEV</dfn>, TypeSafe's new decision
+          model, and compare it with an <dfn data-term="llm">LLM</dfn>. The premise: <q>An LLM that takes two
+          seconds to think is already dead. A decision model answers in about the time one frame takes.
+          Prove it.</q> We tested it: the same game, the same seeds, every decision measured.</p>
+        <h1>Holding FIRE<br>beat the AI.</h1>
+        <p class="lede">Just holding the FIRE button outscored JEV and two LLMs. The
+          <dfn data-term="code">Code Autopilot</dfn>, running no model while it plays, beat all three by
+          more than ten times.</p>
+        <p class="twist">JEV still beat both LLMs, 12x faster and 35x cheaper. During one Haiku decision,
+          an alien bullet falls 64 pixels.</p>
+      </div>
+      <figure class="hero-frame">
+        <img src="assets/hero-frame.png" width="240" height="315"
+          alt="Atari Space Invaders: the score reads 3235, rows of aliens above the green ship, one alien exploding.">
+        <figcaption>The Code Autopilot in wave 4 of a test game: 3,235 points so far, 3,965 at the end.</figcaption>
+      </figure>
+    </div>
     <div id="hero-chart" class="chart hero-chart"></div>
     <p class="small">Bars: the average of the same five games. Dots: each game. The models got the game as numbers
       (<dfn data-term="tier">Tier 1</dfn>). The autopilot sees the same screen and uses no AI while it plays.</p>

@@ -30,7 +30,7 @@
       <dfn data-term="llm">LLMs</dfn>. A <dfn data-term="code">plain program</dfn> beat all three by
       10 to 20 times.</p>
     <div id="hero-chart" class="chart hero-chart"></div>
-    <p class="small">Mean score, the same five games. The models got the game as numbers
+    <p class="small">Bars: the average of the same five games. Dots: each game. The models got the game as numbers
       (<dfn data-term="tier">Tier 1</dfn>). The program uses no AI while it plays.</p>
     <p class="links"><a href="#watch">Watch</a> · <a href="#why">Why?</a> ·
       <a href="https://github.com/13rac1/ufa-2026-09-spaceinvaders">The repository</a></p>
@@ -48,9 +48,11 @@
   <h2>Watch them play</h2>
   <figure class="video">
     <video src="assets/six-players.mp4" poster="assets/six-players.jpg" controls muted playsinline loop preload="metadata"></video>
-    <figcaption>Same game, 3x speed. Top: the program, JEV, Claude Haiku 4.5. Bottom: Qwen3.8 27B,
+    <figcaption>One game (seed 119), 3x speed. Top: the program, JEV, Claude Haiku 4.5. Bottom: Qwen3.8 27B,
       hold FIRE, random buttons. <span class="tag after">code v5</span></figcaption>
   </figure>
+  <p class="note">In this game JEV beat holding FIRE, 425 to 285. Over the five test games it averaged 221
+    and beat FIRE in two of them. Single games vary a lot; the chart above shows every game.</p>
 </section>
 
 <section id="why" class="wrap">

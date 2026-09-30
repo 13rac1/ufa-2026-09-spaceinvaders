@@ -7,6 +7,13 @@ export const DATA = {
     "input": "its own rules",
     "games": 5,
     "score": 2240,
+    "scores": [
+     1570.0,
+     1745.0,
+     2230.0,
+     2465.0,
+     3190.0
+    ],
     "latency_ms": 0.0,
     "cost": 0.0
    },
@@ -16,6 +23,13 @@ export const DATA = {
     "input": "Tier 3: code verdicts (reference)",
     "games": 5,
     "score": 2154,
+    "scores": [
+     840.0,
+     1920.0,
+     2335.0,
+     2745.0,
+     2930.0
+    ],
     "latency_ms": 98.62,
     "cost": 5.6455564815516325e-05
    },
@@ -25,6 +39,13 @@ export const DATA = {
     "input": "none",
     "games": 5,
     "score": 285,
+    "scores": [
+     285.0,
+     285.0,
+     285.0,
+     285.0,
+     285.0
+    ],
     "latency_ms": 0.0,
     "cost": 0.0
    },
@@ -34,6 +55,13 @@ export const DATA = {
     "input": "Tier 1",
     "games": 5,
     "score": 221,
+    "scores": [
+     105.0,
+     110.0,
+     180.0,
+     300.0,
+     410.0
+    ],
     "latency_ms": 92.06,
     "cost": 3.943915343915344e-05
    },
@@ -43,6 +71,13 @@ export const DATA = {
     "input": "Tier 2",
     "games": 5,
     "score": 194,
+    "scores": [
+     135.0,
+     155.0,
+     210.0,
+     230.0,
+     240.0
+    ],
     "latency_ms": 93.31,
     "cost": 3.784700931770364e-05
    },
@@ -52,6 +87,10 @@ export const DATA = {
     "input": "Tier 2",
     "games": 2,
     "score": 185,
+    "scores": [
+     50.0,
+     320.0
+    ],
     "latency_ms": 2292.55,
     "cost": 0.0
    },
@@ -61,6 +100,13 @@ export const DATA = {
     "input": "none",
     "games": 5,
     "score": 125,
+    "scores": [
+     30.0,
+     110.0,
+     120.0,
+     140.0,
+     225.0
+    ],
     "latency_ms": 0.01,
     "cost": 0.0
    },
@@ -70,6 +116,13 @@ export const DATA = {
     "input": "Tier 1",
     "games": 5,
     "score": 113,
+    "scores": [
+     50.0,
+     105.0,
+     105.0,
+     105.0,
+     200.0
+    ],
     "latency_ms": 2440.67,
     "cost": 0.0
    },
@@ -79,6 +132,13 @@ export const DATA = {
     "input": "Tier 1",
     "games": 5,
     "score": 105,
+    "scores": [
+     35.0,
+     55.0,
+     80.0,
+     125.0,
+     230.0
+    ],
     "latency_ms": 1071.74,
     "cost": 0.0013913962804005724
    },
@@ -88,6 +148,13 @@ export const DATA = {
     "input": "Tier 2",
     "games": 5,
     "score": 103,
+    "scores": [
+     15.0,
+     40.0,
+     40.0,
+     135.0,
+     285.0
+    ],
     "latency_ms": 1063.64,
     "cost": 0.0014000042372881356
    }

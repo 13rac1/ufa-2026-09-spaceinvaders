@@ -136,11 +136,12 @@ table.data td:not(:first-child), table.data th:not(:first-child) { font-family: 
 .hero .lede { font-size: clamp(20px, 2.8vw, 26px); margin-bottom: 18px; }
 .hero-chart { max-width: 760px; margin-bottom: 6px; }
 .hbars { position: relative; padding: 4px 0 26px; }
-.hrow { display: grid; grid-template-columns: 96px 1fr; align-items: center; gap: 10px; margin: 6px 0; font: 15px var(--mono); }
+.hrow { display: grid; grid-template-columns: 96px 1fr 56px; align-items: center; gap: 10px; margin: 6px 0; font: 15px var(--mono); }
 .htrack { position: relative; height: 26px; }
 .hbar { height: 100%; border-radius: 4px; }
-.hval { position: absolute; top: 3px; margin-left: 8px; white-space: nowrap; }
-.hguide { position: absolute; left: 106px; right: 0; top: 0; bottom: 22px; pointer-events: none; }
+.hval { text-align: right; }
+.hguide { position: absolute; left: 106px; right: 66px; top: 0; bottom: 22px; pointer-events: none; }
 .hhuman { position: absolute; top: 0; bottom: 0; border-left: 2px dashed var(--magenta); }
 .hhuman span { position: absolute; bottom: -22px; transform: translateX(-50%); font: 13px var(--mono); color: var(--magenta); white-space: nowrap; }
-.hval.inside { transform: translateX(-100%); margin-left: -8px; color: #fff; }
+.hdot { position: absolute; top: 50%; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%;
+  background: #fff; border: 2px solid; box-sizing: border-box; opacity: .95; }

@@ -270,12 +270,13 @@ function setupHero() {
   const order = ["code", "always-fire", "jev-t1", "qwen-t1", "llm-t1"];
   const names = { code: "Program", "always-fire": "Hold FIRE", "jev-t1": "JEV", "qwen-t1": "Qwen", "llm-t1": "Haiku" };
   // HTML bars, not SVG: the text keeps its size on a phone.
-  const max = Math.max(...order.map((p) => byPlayer[p].score)) * 1.18;
+  const max = Math.max(...order.flatMap((p) => byPlayer[p].scores)) * 1.03;
   const pct = (v) => `${(100 * v) / max}%`;
   $("#hero-chart").innerHTML = `<div class="hbars" role="img" aria-label="${order.map((p) => `${names[p]} ${byPlayer[p].score}`).join(", ")}">
     ${order.map((p) => `<div class="hrow"><span class="hname">${names[p]}</span><div class="htrack">
       <div class="hbar" style="width:${pct(byPlayer[p].score)};background:${COLOR(p)}"></div>
-      <span class="hval${byPlayer[p].score / max > 0.5 ? " inside" : ""}" style="left:${pct(byPlayer[p].score)}">${fmt(byPlayer[p].score)}</span></div></div>`).join("")}
+      ${byPlayer[p].scores.map((v) => `<i class="hdot" style="left:${pct(v)};border-color:${COLOR(p)}" title="${fmt(v)}"></i>`).join("")}
+      </div><span class="hval">${fmt(byPlayer[p].score)}</span></div>`).join("")}
     <div class="hguide"><div class="hhuman" style="left:${pct(DATA.entry.human)}"><span>human ${fmt(DATA.entry.human)}</span></div></div></div>`;
 }
 

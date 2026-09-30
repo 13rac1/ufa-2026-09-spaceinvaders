@@ -13,7 +13,14 @@ from invaders.players.retry import (
     call_with_retry,
     status_of,
 )
-from invaders.question import QUESTION_VERSIONS, build_questions, build_request_state
+from invaders.question import (
+    QUESTION_VERSIONS,
+    MEMORY_VERSIONS,
+    STRATEGY_VERSIONS,
+    build_memory_state,
+    build_questions,
+    build_request_state,
+)
 from invaders.state import ACTIONS
 
 
@@ -40,6 +47,8 @@ class SystemOnePlayer:
         max_outage_s: float = MAX_OUTAGE_S,
         transport: httpx.BaseTransport | None = None,
         tier: int = 2,
+        strategy: bool = False,
+        memory: bool = False,
     ) -> None:
         if api_key_env and not os.environ.get(api_key_env):
             raise MissingAPIKeyError(
@@ -48,7 +57,11 @@ class SystemOnePlayer:
             )
         self.name = name
         self.input_tier = tier
-        self.question_version = QUESTION_VERSIONS[tier]
+        self.strategy = strategy
+        self.memory = memory
+        self._previous_view: dict | None = None
+        versions = MEMORY_VERSIONS if memory else STRATEGY_VERSIONS if strategy else QUESTION_VERSIONS
+        self.question_version = versions[tier]
         self.version = f"q{self.question_version}"
         self.provider = provider
         self.requested_model = model
@@ -62,7 +75,7 @@ class SystemOnePlayer:
         self._client = httpx.Client(transport=transport)
 
     def reset(self, seed: int) -> None:
-        pass
+        self._previous_view = None
 
     def _headers(self) -> dict:
         headers = {"Content-Type": "application/json"}
@@ -73,7 +86,8 @@ class SystemOnePlayer:
 
     def decide(self, state: dict, previous_action: int) -> Decision:
         data, model_calls, retries, error_status = self._ask(
-            build_request_state(state, self.input_tier), build_questions(self.input_tier)
+            self._request_state(state, previous_action),
+            build_questions(self.input_tier, self.strategy, self.memory),
         )
         if data is None:
             return self._fallback(previous_action, model_calls, retries, error_status)
@@ -98,6 +112,16 @@ class SystemOnePlayer:
             output_tokens=usage.get("output_tokens", 0),
             served_model=data.get("model"),
             retries=retries,
+        )
+
+    def _request_state(self, state: dict, previous_action: int) -> dict:
+        view = build_request_state(state, self.input_tier)
+        if not self.memory:
+            return view
+        previous = self._previous_view
+        self._previous_view = view
+        return build_memory_state(
+            view, previous, ACTIONS[previous_action] if previous is not None else None
         )
 
     def _ask(self, request_state: dict, questions: dict) -> tuple[dict | None, int, int, int | None]:

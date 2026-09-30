@@ -64,3 +64,41 @@ def test_an_unknown_answer_falls_back_to_the_code_players_target(state, monkeypa
     player = make_player(handler, monkeypatch)
     decision = player.decide(state, 0)
     assert decision.fallback and player._rule is None
+
+
+class _FakeAnswer:
+    def __init__(self, choice):
+        self.choice, self.confidence = choice, 0.8
+
+
+class _FakeResponse:
+    def __init__(self, choice):
+        self.answers = {"target": _FakeAnswer(choice)}
+        self.model = "fake-llm"
+
+        class U:
+            input_tokens_total, output_tokens_total, n_retries = 100, 5, 0
+        self.usage = U()
+
+
+class _FakeClient:
+    def __init__(self):
+        self.calls = []
+
+    def system_one(self, state, questions, provider=None, model=None):
+        self.calls.append((state, questions))
+        letter = next(k for k, o in state["options"].items() if o["rule"] == RULES["right_edge"])
+        return _FakeResponse(letter)
+
+
+def test_llm_goal_player_asks_the_same_question_through_the_adapter(state, monkeypatch):
+    from invaders.players.goal_player import LLMGoalPlayer, question
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test")
+    player = LLMGoalPlayer(name="llm-goal", tier=1)
+    fake = _FakeClient()
+    player._client = fake
+    decision = player.decide(state, 0)
+    assert len(fake.calls) == 1 and decision.model_calls == 1 and not decision.fallback
+    assert player._rule == "right_edge" and decision.input_tokens == 100
+    sent = fake.calls[0][1]["target"]
+    assert sent.instructions == question({"A": "left_edge"})["target"]["instructions"]

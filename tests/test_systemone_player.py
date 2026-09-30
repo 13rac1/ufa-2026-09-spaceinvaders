@@ -190,3 +190,31 @@ def test_connection_drop_is_retried_until_it_returns():
     assert decision.action == LEFT
     assert decision.fallback is False
     assert decision.retries == 4
+
+
+def test_memory_sends_the_previous_view_and_action():
+    bodies = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        import json
+
+        bodies.append(json.loads(request.content))
+        return httpx.Response(200, json=_choice_response(choice="LEFT"))
+
+    player = make_player(handler, tier=1, memory=True)
+    player.reset(seed=1)
+    player.decide(state=FAKE_STATE, previous_action=NOOP)
+    moved = {**FAKE_STATE, "ship_x": 58}
+    player.decide(state=moved, previous_action=LEFT)
+
+    first, second = (b["state"] for b in bodies)
+    assert first["previous"] is None and first["previous_action"] is None
+    assert second["previous"] == first["now"]
+    assert second["previous_action"] == "LEFT"
+    assert second["now"]["ship"]["x"] == 58
+    assert "one decision earlier" in bodies[0]["questions"]["action"]["instructions"]
+    assert player.question_version == 12
+
+    player.reset(seed=2)
+    player.decide(state=FAKE_STATE, previous_action=NOOP)
+    assert bodies[-1]["state"]["previous"] is None

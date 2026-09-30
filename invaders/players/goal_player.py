@@ -12,6 +12,8 @@ import string
 
 from invaders.players.base import Decision
 from invaders.players.code_player import choose
+from invaders.players.llm_player import LLMPlayer
+from invaders.players.retry import call_with_retry, status_of
 from invaders.players.systemone import SystemOnePlayer
 from invaders.state import (
     ALIGNED_PX,
@@ -136,11 +138,14 @@ def question(ids: dict[str, str]) -> dict:
     }
 
 
-class GoalPlayer(SystemOnePlayer):
-    """JEV picks the target rule; the code player's rules execute it."""
+class GoalMixin:
+    """The model picks the target rule; the code player's rules execute it.
 
-    def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
+    The concrete player supplies _ask(request_state, questions), returning
+    (response dict or None, model calls, retries, HTTP status).
+    """
+
+    def _init_goal(self) -> None:
         self.input_tier = "goal"
         self.version = GOAL_VERSION
         self.question_version = GOAL_VERSION
@@ -183,3 +188,47 @@ class GoalPlayer(SystemOnePlayer):
             )
         decision.action = choose(features)
         return decision
+
+
+class GoalPlayer(GoalMixin, SystemOnePlayer):
+    """JEV picks the target rule over the System One protocol."""
+
+    def __init__(self, **kwargs) -> None:
+        SystemOnePlayer.__init__(self, **kwargs)
+        self._init_goal()
+
+
+class LLMGoalPlayer(GoalMixin, LLMPlayer):
+    """An LLM picks the target rule through the System One adapter: the same question."""
+
+    def __init__(self, **kwargs) -> None:
+        LLMPlayer.__init__(self, **kwargs)
+        self._init_goal()
+
+    def _ask(self, request_state: dict, questions: dict):
+        from system_one_adapter import Choice
+
+        adapted = {k: Choice(instructions=q["instructions"], criteria=q["criteria"])
+                   for k, q in questions.items()}
+
+        def call():
+            return self._client.system_one(
+                request_state, adapted,
+                provider=None if self._base_url else self.provider, model=self._model_arg,
+            )
+
+        try:
+            response, retries = call_with_retry(
+                call, on_retry=self._rebuild_client, max_outage_s=self._max_outage_s
+            )
+        except Exception as error:  # noqa: BLE001 - a failed call must not end the game
+            return None, 1, 0, status_of(error)
+        answer = response.answers.get("target")
+        usage = response.usage
+        return {
+            "answers": {"target": {"choice": answer.choice, "confidence": answer.confidence}}
+            if answer is not None else {},
+            "usage": {"input_tokens": usage.input_tokens_total or 0,
+                      "output_tokens": usage.output_tokens_total or 0},
+            "model": response.model,
+        }, 1, retries + (usage.n_retries or 0), None

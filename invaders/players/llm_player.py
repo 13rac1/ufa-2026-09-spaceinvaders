@@ -14,7 +14,12 @@ from typesafe_sdk import RetryPolicy
 from invaders.players.base import Decision
 from invaders.players.retry import MAX_OUTAGE_S, call_with_retry, status_of
 from invaders.players.systemone import MissingAPIKeyError
-from invaders.question import QUESTION_VERSIONS, build_questions, build_request_state
+from invaders.question import (
+    QUESTION_VERSIONS,
+    STRATEGY_VERSIONS,
+    build_questions,
+    build_request_state,
+)
 from invaders.state import ACTIONS
 
 DEFAULT_PROVIDER = "anthropic"
@@ -48,11 +53,13 @@ class LLMPlayer:
         tier: int = 2,
         name: str = "llm",
         max_outage_s: float = MAX_OUTAGE_S,
+        strategy: bool = False,
     ) -> None:
         self._max_outage_s = max_outage_s
+        self.strategy = strategy
         self.name = name
         self.input_tier = tier
-        self.question_version = QUESTION_VERSIONS[tier]
+        self.question_version = (STRATEGY_VERSIONS if strategy else QUESTION_VERSIONS)[tier]
         self.version = f"q{self.question_version}"
         self.provider = provider or os.environ.get("LLM_PROVIDER", DEFAULT_PROVIDER)
         self.requested_model = model or os.environ.get("LLM_MODEL", DEFAULT_MODEL)
@@ -113,7 +120,7 @@ class LLMPlayer:
 
     def decide(self, state: dict, previous_action: int) -> Decision:
         request_state = build_request_state(state, self.input_tier)
-        questions = _adapt_questions(build_questions(self.input_tier))
+        questions = _adapt_questions(build_questions(self.input_tier, self.strategy))
 
         def call():
             return self._client.system_one(

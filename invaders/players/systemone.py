@@ -13,7 +13,12 @@ from invaders.players.retry import (
     call_with_retry,
     status_of,
 )
-from invaders.question import QUESTION_VERSIONS, build_questions, build_request_state
+from invaders.question import (
+    QUESTION_VERSIONS,
+    STRATEGY_VERSIONS,
+    build_questions,
+    build_request_state,
+)
 from invaders.state import ACTIONS
 
 
@@ -40,6 +45,7 @@ class SystemOnePlayer:
         max_outage_s: float = MAX_OUTAGE_S,
         transport: httpx.BaseTransport | None = None,
         tier: int = 2,
+        strategy: bool = False,
     ) -> None:
         if api_key_env and not os.environ.get(api_key_env):
             raise MissingAPIKeyError(
@@ -48,7 +54,8 @@ class SystemOnePlayer:
             )
         self.name = name
         self.input_tier = tier
-        self.question_version = QUESTION_VERSIONS[tier]
+        self.strategy = strategy
+        self.question_version = (STRATEGY_VERSIONS if strategy else QUESTION_VERSIONS)[tier]
         self.version = f"q{self.question_version}"
         self.provider = provider
         self.requested_model = model
@@ -73,7 +80,8 @@ class SystemOnePlayer:
 
     def decide(self, state: dict, previous_action: int) -> Decision:
         data, model_calls, retries, error_status = self._ask(
-            build_request_state(state, self.input_tier), build_questions(self.input_tier)
+            build_request_state(state, self.input_tier),
+            build_questions(self.input_tier, self.strategy),
         )
         if data is None:
             return self._fallback(previous_action, model_calls, retries, error_status)

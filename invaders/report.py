@@ -18,7 +18,8 @@ HUMAN_HIGH = 1668.7
 # Player row order for the summary table; a player not listed here (there is
 # none today) would sort after these, alphabetically.
 PLAYER_ORDER = [
-    "code", "code-la", "jev-t3", "jev-goal", "jev-t2", "jev-t1", "llm-t2", "llm-t1", "qwen-t2", "qwen-t1",
+    "code", "code-la", "jev-t3", "jev-goal", "jev-t2", "jev-t1", "jev-t1s", "llm-goal", "llm-t2", "llm-t1", "llm-t1s",
+    "qwen-goal", "qwen-t2", "qwen-t1", "qwen-t1s",
     "always-fire", "random",
 ]
 
@@ -27,7 +28,8 @@ TIER_NOTE = {
     1: "Tier 1: decoded positions",
     2: "Tier 2: exact facts, relative",
     3: "Tier 3: code verdicts (reference)",
-    "goal": "Goal: JEV picks the target, code executes",
+    "goal": "Goal: the model picks the target rule, code flies",
+    "1s": "Tier 1 + strategy as text",
 }
 MODE_ORDER = ["turn", "realtime"]
 
@@ -125,6 +127,8 @@ def summarize_group(records: list[dict]) -> dict:
     total_fallback = sum(r["fallback_actions"] for r in records)
     total_errors = sum(sum(r.get("errors_by_status", {}).values()) for r in records)
     served_models = sorted({r["served_model"] for r in records if r.get("served_model")})
+    counted = [r for r in records if r.get("shots") is not None]  # older runs lack the fields
+    total_shots = sum(r["shots"] for r in counted)
 
     return {
         "games": len(records),
@@ -143,6 +147,7 @@ def summarize_group(records: list[dict]) -> dict:
         "cost_per_game": _mean(costs) if costs else None,
         "fallback_rate": (total_fallback / total_decisions) if total_decisions else None,
         "error_count": total_errors,
+        "hit_rate": sum(r["shot_hits"] for r in counted) / total_shots if total_shots else None,
         "served_models": ", ".join(served_models) if served_models else "n/a",
     }
 
@@ -186,6 +191,7 @@ def build_summary_table(records: list[dict]) -> str:
         "cost/game ($)",
         "fallback rate",
         "errors",
+        "hit rate",
         "served model(s)",
     ]
     header = "| " + " | ".join(columns) + " |"
@@ -216,6 +222,7 @@ def build_summary_table(records: list[dict]) -> str:
                     _fmt(s["cost_per_game"], 4),
                     _fmt(s["fallback_rate"], 3),
                     str(s["error_count"]),
+                    _fmt(s["hit_rate"], 2),
                     s["served_models"],
                 ]
             )

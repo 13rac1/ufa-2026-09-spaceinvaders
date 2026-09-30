@@ -10,7 +10,7 @@ from pathlib import Path
 from invaders.bench import build_matrix, existing_keys, game_key, play_and_record
 from invaders.players.code_player import CodePlayer, LatencyAwareCodePlayer
 from invaders.players.fire_player import AlwaysFirePlayer
-from invaders.players.goal_player import GoalPlayer
+from invaders.players.goal_player import GoalPlayer, LLMGoalPlayer
 from invaders.players.llm_player import LLMPlayer
 from invaders.players.random_player import RandomPlayer
 from invaders.players.systemone import MissingAPIKeyError, SystemOnePlayer
@@ -61,6 +61,22 @@ PLAYERS = {
         provider="typesafe",
     ),
     "llm-t1": functools.partial(LLMPlayer, name="llm-t1", tier=1),
+    # The LLMs answer the same goal question through the System One adapter.
+    "llm-goal": functools.partial(LLMGoalPlayer, name="llm-goal", tier=1),
+    "qwen-goal": functools.partial(LLMGoalPlayer, name="qwen-goal", tier=1),
+    # Tier 1 + strategy: the code player's strategy stated as text, no per-step verdicts.
+    "jev-t1s": functools.partial(
+        SystemOnePlayer,
+        name="jev-t1s",
+        base_url="https://api.typesafe.ai",
+        model="jev-latest",
+        api_key_env="TYPESAFE_API_KEY",
+        provider="typesafe",
+        tier=1,
+        strategy=True,
+    ),
+    "llm-t1s": functools.partial(LLMPlayer, name="llm-t1s", tier=1, strategy=True),
+    "qwen-t1s": functools.partial(LLMPlayer, name="qwen-t1s", tier=1, strategy=True),
     # Qwen on a local OpenAI-compatible server (LLM_BASE_URL, LLM_PROVIDER=openai, LLM_MODEL,
     # LLM_REASONING_EFFORT=none): an extra LLM row, free to run.
     "qwen-t1": functools.partial(LLMPlayer, name="qwen-t1", tier=1),
@@ -72,6 +88,11 @@ PLAYERS = {
 SDK_PACKAGES = {
     **{f"jev-t{t}": "httpx" for t in (1, 2, 3)},
     "jev-goal": "httpx",
+    "llm-goal": "system-one-adapter",
+    "qwen-goal": "system-one-adapter",
+    "jev-t1s": "httpx",
+    "llm-t1s": "system-one-adapter",
+    "qwen-t1s": "system-one-adapter",
     **{f"llm-t{t}": "system-one-adapter" for t in (1, 2)},
     **{f"qwen-t{t}": "system-one-adapter" for t in (1, 2)},
 }

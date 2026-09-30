@@ -92,7 +92,8 @@ def play_and_record(
         record_video=record_video,
         log_path=log_path,
     )
-    record["input_tier"] = getattr(player, "input_tier", None)
+    tier = getattr(player, "input_tier", None)
+    record["input_tier"] = f"{tier}s" if getattr(player, "strategy", False) else tier
     record["question_version"] = getattr(player, "question_version", None)
     if notes:
         record["notes"] = notes  # the organizers' per-run note: what changed and why

@@ -71,9 +71,6 @@ MOTHERSHIP_SPEED = 0.25  # pixels per frame
 MOTHERSHIP_SAFE_ROW_Y = 155
 INVASION_Y = 160  # the lowest alien row's center y at which the game ends (measured 163-165)
 DESCENT_PX = 10  # the fleet drops this far each time it turns at an edge
-URGENT_FRAMES = 1e9  # below this margin to invasion only the lowest row counts
-MOTHERSHIP_MIN_MARGIN = 0.0  # frames to invasion needed before chasing the mothership
-POINTS_WEIGHT = 1.0  # how much a higher row's points count against its extra frames  # chase the mothership only while the lowest aliens are above this
 
 
 def _runs(indices: np.ndarray) -> list[tuple[int, int]]:
@@ -199,17 +196,16 @@ def _shot_victim(aliens, fleet, shot) -> dict | None:
     return max(hits, key=lambda a: a["y"]) if hits else None
 
 
-def _choose_target(aliens, fleet, shot_x, shield_columns) -> tuple[int | None, bool, float]:
-    """Return (target_dx, target_behind_shield, frames_to_invasion).
+def _choose_target(aliens, fleet, shot_x, shield_columns) -> tuple[int | None, bool]:
+    """Return (target_dx, target_behind_shield).
 
-    Invasion control: while the fleet is far from landing, aim at the clear alien that
-    gives the most points per frame (travel plus shot flight; rows are worth 5 to 30
-    points from the bottom up). When fewer than URGENT_FRAMES remain, only the lowest
-    row counts, because removing it buys time. With no clear alien in the lowest row,
-    aim through a shield.
+    The lowest alien of an outer column comes first: a fleet without its outer columns
+    travels further before each descent. Within URGENT_DROPS drops of invading, the
+    lowest row comes first. With no clear candidate, aim at the lowest row through a
+    shield.
     """
     if not aliens:
-        return None, False, float("inf")
+        return None, False
 
     def reachable(a):
         return SHIP_MIN_X <= a["x"] - SHOT_OFFSET <= SHIP_MAX_X and not shield_columns[a["x"]]
@@ -218,14 +214,12 @@ def _choose_target(aliens, fleet, shot_x, shield_columns) -> tuple[int | None, b
         return abs(_lead_x(a, fleet) - shot_x)
 
     lowest_y = max(a["y"] for a in aliens)
-    margin = _frames_to_invasion(lowest_y, fleet)
     bottom_row = [a for a in aliens if a["y"] >= lowest_y - 2]
     clear_bottom = [a for a in bottom_row if reachable(a)]
     drops_left = (INVASION_Y - lowest_y) / DESCENT_PX
     if URGENT_DROPS and drops_left <= URGENT_DROPS and clear_bottom:
         pool = clear_bottom
-    elif fleet.get("outer_first"):
-        # A fleet without its outer columns travels further before each descent.
+    else:
         left, right = min(a["x"] for a in aliens), max(a["x"] for a in aliens)
         columns = {}
         for a in aliens:
@@ -234,18 +228,8 @@ def _choose_target(aliens, fleet, shot_x, shield_columns) -> tuple[int | None, b
                 if key not in columns or a["y"] > columns[key]["y"]:
                     columns[key] = a
         pool = list(columns.values()) or clear_bottom
-    elif margin < URGENT_FRAMES or not clear_bottom:
-        pool = clear_bottom
-    else:
-        rows = sorted({round(a["y"] / 6) for a in aliens}, reverse=True)  # bottom first
-        def value(a):
-            points = 5 * (rows.index(round(a["y"] / 6)) + 1)
-            frames = travel(a) / SHIP_SPEED + (SHIP_TOP_Y - a["y"]) / SHOT_SPEED
-            return points ** POINTS_WEIGHT / max(frames, 1.0)
-        clear = [a for a in aliens if reachable(a)]
-        pool = [max(clear, key=value)] if clear else []
     target = min(pool or bottom_row, key=travel)
-    return round(_lead_x(target, fleet) - shot_x), not pool, margin
+    return round(_lead_x(target, fleet) - shot_x), not pool
 
 
 def _features(
@@ -259,7 +243,7 @@ def _features(
     }
     # While a shot flies, aim at the next target: the shot's victim is as good as gone.
     victim = _shot_victim(aliens, fleet, shot)
-    target_dx, target_behind_shield, margin = _choose_target(
+    target_dx, target_behind_shield = _choose_target(
         [a for a in aliens if a is not victim] or aliens, fleet, shot_x, shield_columns
     )
     # The mothership is worth 200 points against 5 to 30 for an alien: chase it while
@@ -267,7 +251,7 @@ def _features(
     target_kind = "alien" if aliens else None
     if mothership is not None and mothership["vx"] and (
         not aliens
-        or (max(a["y"] for a in aliens) <= MOTHERSHIP_SAFE_ROW_Y and margin >= MOTHERSHIP_MIN_MARGIN)
+        or max(a["y"] for a in aliens) <= MOTHERSHIP_SAFE_ROW_Y
     ):
         lead = mothership["x"] + mothership["vx"] * (SHIP_TOP_Y - MOTHERSHIP_Y) / SHOT_SPEED
         if SHIP_MIN_X <= lead - SHOT_OFFSET <= SHIP_MAX_X and not shield_columns[int(lead)]:
@@ -369,7 +353,7 @@ def decode(
     fleet_x = int(ram[26])
     fleet = _fleet_motion(fleet_x, int(ram[17]), previous, frames_elapsed)
     fleet["x"] = fleet_x
-    fleet.update(outer_first=True, phase_below=PHASE_LEAD_BELOW)
+    fleet["phase_below"] = PHASE_LEAD_BELOW
     if aliens:
         fleet["min_x"] = min(fleet_x, fleet_x - (min(a["x"] for a in aliens) - LEFT_TURN_ALIEN_X))
         fleet["max_x"] = max(fleet_x, fleet_x + (RIGHT_TURN_ALIEN_X - max(a["x"] for a in aliens)))
@@ -529,38 +513,4 @@ def tier2_view(state: dict) -> dict:
         ),
         "other_aliens": len(aliens) - len(bottom),
         "mothership": mothership,
-    }
-
-
-def tier2_compact_view(state: dict) -> dict:
-    """Tier 2 v6: the Tier 2 facts, filtered and grouped for a literal reader.
-
-    The same exact facts as tier2_view, less what cannot matter: bullets that a shield
-    will stop are left out, and the aliens of the lowest row are grouped by side, as
-    offsets at the moment a shot fired now would reach them. Aliens behind a shield
-    are listed apart, because a shot cannot reach them. No verdicts.
-    """
-    view = tier2_view(state)
-    aliens = {"left": [], "over_ship": [], "right": []}
-    shielded = []
-    for alien in view["lowest_row_aliens"]:
-        if alien["behind_shield"]:
-            shielded.append(alien["dx_at_shot_arrival"])
-        else:
-            aliens[alien["side"]].append(alien["dx_at_shot_arrival"])
-    mothership = view["mothership"]
-    return {
-        "gun_ready": view["gun_ready"],
-        "room_to_move_px": view["room_to_move_px"],
-        "bullets": [
-            {k: b[k] for k in ("lane", "arrival", "dx", "frames_to_ship_row")}
-            for b in view["alien_bullets"]
-            if not b["stopped_by_shield"]
-        ],
-        "aliens": aliens,
-        "aliens_behind_shields": shielded,
-        "mothership": (
-            {"side": mothership["side"], "dx": mothership["dx_at_shot_arrival"]}
-            if mothership else None
-        ),
     }

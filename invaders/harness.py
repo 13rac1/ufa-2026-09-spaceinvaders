@@ -8,6 +8,7 @@ import imageio
 import numpy as np
 
 from invaders.env import make_env
+from invaders.shots import ShotCounter
 from invaders.state import decode
 
 NOOP = 0
@@ -91,6 +92,7 @@ def run_game(
     served_model = None
     terminated = False
     truncated = False
+    shots = ShotCounter()
 
     def steps_left() -> bool:
         if terminated or truncated:
@@ -99,7 +101,9 @@ def run_game(
 
     def take_step(action: int) -> None:
         nonlocal obs, info, score, steps, terminated, truncated
+        ram_before = obs
         obs, reward, terminated, truncated, info = env.step(action)
+        shots.step(ram_before, obs, reward)
         score += reward
         steps += 1
         if video_writer is not None:
@@ -187,6 +191,7 @@ def run_game(
         "latency_ms_total": float(sum(latencies)),
         "errors_by_status": errors_by_status,
         "retries": retries,
+        **shots.record(),
         "fallback_actions": fallback_actions,
         "wall_clock_s": wall_clock_s,
         "served_model": served_model,

@@ -1,10 +1,15 @@
-"""Score JEV question variants on fixed game situations, without playing games.
+"""Score model players on fixed game situations, without playing games.
 
-States come from code-player games on tuning seeds. Each state is sent once per
-variant. The code player's verdicts score the answers; they are never sent to JEV.
+States come from code-player games on tuning seeds. Each state is sent once to each
+player, through the player's own request (its tier and question). The code player's
+verdicts score the answers; they are never sent to a model.
 
 Usage: python tools/situation_bench.py collect STATES.json
-       python tools/situation_bench.py score STATES.json v4,v6,v6split
+       python tools/situation_bench.py score STATES.json jev-t1,jev-t1s [THREADS] [ORDER]
+
+ORDER (System One players only) lists the six actions in the order the question offers
+them, for example LEFTFIRE,RIGHTFIRE,LEFT,RIGHT,FIRE,NOOP; "random" shuffles them for every
+request. The default is the recorded order.
 """
 
 import json
@@ -13,18 +18,12 @@ import random
 import sys
 from concurrent.futures import ThreadPoolExecutor
 
-import httpx
-
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from invaders.env import make_env  # noqa: E402
 from invaders.players.code_player import choose  # noqa: E402
-from invaders.question import (  # noqa: E402
-    build_questions, build_request_state, build_v6_questions, split_answers_to_action,
-)
-from invaders.state import ACTIONS, SHIP_MIN_X, decode, tier2_compact_view  # noqa: E402
+from invaders.state import ACTIONS, SHIP_MIN_X, decode  # noqa: E402
 
 PER_KIND = 75
-PRICE_PER_TOKEN = 0.042 / 1e6
 
 
 def kind(state: dict) -> str | None:
@@ -63,34 +62,6 @@ def collect(path: str) -> None:
     print({k: len(v) for k, v in chosen.items()})
 
 
-def request(state: dict, variant: str) -> tuple[dict, dict]:
-    if variant == "v4":
-        return build_request_state(state, 2), build_questions(2)
-    view = tier2_compact_view(state)
-    return view, build_v6_questions(view, split=variant == "v6split")
-
-
-def ask(client: httpx.Client, state: dict, variant: str) -> tuple[str | None, int]:
-    view, questions = request(state, variant)
-    body = {"state": view, "model": "jev-latest", "questions": questions}
-    response = client.post(
-        "https://api.typesafe.ai/v1/systemone",
-        content=json.dumps(body, separators=(",", ":")),
-        headers={"Authorization": f"Bearer {os.environ['TYPESAFE_API_KEY']}",
-                 "Content-Type": "application/json"},
-        timeout=10,
-    )
-    if response.status_code != 200:
-        return None, 0
-    data = response.json()
-    answers = data["answers"]
-    tokens = data.get("usage", {}).get("input_tokens", 0)
-    if variant == "v6split":
-        fire = answers.get("fire", {}).get("choice")
-        return split_answers_to_action(answers["move"]["choice"], fire), tokens
-    return answers["action"]["choice"], tokens
-
-
 def correct(k: str, state: dict, action: str) -> bool:
     f = state["features"]
     move = 1 if action.startswith("RIGHT") else -1 if action.startswith("LEFT") else 0
@@ -103,20 +74,56 @@ def correct(k: str, state: dict, action: str) -> bool:
     return move == (1 if f["target_dx"] > 0 else -1)  # approach
 
 
-def score(path: str, variants: list[str]) -> None:
+def reordered_decision(player, state: dict, order: list[str] | None):
+    """Ask a System One player its question with the options in the given order."""
+    from invaders.players.base import Decision
+    from invaders.question import build_questions, build_request_state
+
+    names = random.sample(ACTIONS, len(ACTIONS)) if order == ["random"] else order
+    question = build_questions(player.input_tier, player.strategy)["action"]
+    question = {**question, "criteria": {a: question["criteria"][a] for a in names}}
+    data, calls, retries, status = player._ask(build_request_state(state, player.input_tier),
+                                               {"action": question})
+    answer = (data or {}).get("answers", {}).get("action") or {}
+    usage = (data or {}).get("usage", {})
+    choice = answer.get("choice")
+    return Decision(action=ACTIONS.index(choice) if choice in ACTIONS else 0,
+                    model_calls=calls, input_tokens=usage.get("input_tokens", 0),
+                    output_tokens=usage.get("output_tokens", 0), error_status=status,
+                    retries=retries, fallback=choice not in ACTIONS)
+
+
+def score(path: str, names: list[str], threads: int, order: list[str] | None = None) -> None:
+    from invaders.__main__ import PLAYERS
+    from invaders.results import PRICES
+
     states = json.load(open(path))
-    with httpx.Client() as client, ThreadPoolExecutor(6) as pool:
-        for variant in variants:
-            total_tokens, line = 0, []
+    with ThreadPoolExecutor(threads) as pool:
+        for name in names:
+            player = PLAYERS[name]()
+            price = PRICES.get(player.provider)
+            tokens, line = [0, 0], []
             for k, group in states.items():
-                results = list(pool.map(lambda s: ask(client, s, variant), group))
-                total_tokens += sum(t for _, t in results)
-                answered = [(s, a) for s, (a, _) in zip(group, results) if a]
-                rate = sum(correct(k, s, a) for s, a in answered) / max(len(answered), 1)
-                line.append(f"{k} {rate:.2f} (n {len(answered)})")
-            print(f"{variant}: " + ", ".join(line) + f"; ${total_tokens * PRICE_PER_TOKEN:.3f}")
+                if order:
+                    decisions = list(pool.map(lambda st: reordered_decision(player, st, order), group))
+                else:
+                    decisions = list(pool.map(lambda st: player.decide(st, 0), group))
+                moves = [ACTIONS[d.action] for d in decisions if not d.fallback]
+                line_moves = {m: sum(a.startswith(m) for a in moves) for m in ("LEFT", "RIGHT")}
+                tokens[0] += sum(d.input_tokens for d in decisions)
+                tokens[1] += sum(d.output_tokens for d in decisions)
+                answered = [(st, ACTIONS[d.action]) for st, d in zip(group, decisions) if not d.fallback]
+                rate = sum(correct(k, st, a) for st, a in answered) / max(len(answered), 1)
+                line.append(f"{k} {rate:.2f} (n {len(answered)}, L {line_moves['LEFT']} R {line_moves['RIGHT']})")
+            cost = (tokens[0] * price["input_per_mtok_usd"]
+                    + tokens[1] * price["output_per_mtok_usd"]) / 1e6 if price else 0.0
+            print(f"{name}: " + ", ".join(line) + f"; ${cost:.3f}", flush=True)
 
 
 if __name__ == "__main__":
     command, path = sys.argv[1], sys.argv[2]
-    collect(path) if command == "collect" else score(path, sys.argv[3].split(","))
+    if command == "collect":
+        collect(path)
+    else:
+        score(path, sys.argv[3].split(","), int(sys.argv[4]) if len(sys.argv) > 4 else 6,
+              sys.argv[5].split(",") if len(sys.argv) > 5 else None)

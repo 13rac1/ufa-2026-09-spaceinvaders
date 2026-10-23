@@ -24,9 +24,12 @@
 <body>
 <header class="top">
   <div class="wrap hero">
+    <div class="topline">
+      <p class="kicker">UFA JEV Bake-Off · Atari Space Invaders · September 2026</p>
+      <a class="gh" href="https://github.com/13rac1/ufa-2026-09-spaceinvaders">Code and data on GitHub</a>
+    </div>
     <div class="hero-grid">
       <div>
-        <p class="kicker">UFA JEV Bake-Off · Atari Space Invaders · September 2026</p>
         <p class="intro">The <a href="https://ufa.foundation/jev/space-invaders/">UFA JEV Bake-Off</a> asked
           builders to play Atari Space Invaders with <dfn data-term="jev">JEV</dfn>, TypeSafe's new decision
           model, and compare it with an <dfn data-term="llm">LLM</dfn>. The premise: <q>An LLM that takes two
@@ -62,9 +65,9 @@
 <section id="watch" class="wrap">
   <h2>Watch them play</h2>
   <figure class="video">
-    <video src="assets/six-players.mp4" poster="assets/six-players.jpg" controls muted playsinline loop preload="metadata"></video>
-    <figcaption>One game (seed 119), 3x speed; when every model's game is over, the autopilot speeds up.
-      Top: the autopilot, JEV, Claude Haiku 4.5. Bottom: Qwen3.8 27B, hold FIRE, random buttons.</figcaption>
+    <video src="assets/trailer.mp4" poster="assets/trailer.jpg" controls playsinline preload="metadata"></video>
+    <figcaption>The trailer (1:19, with music). After an animated title: one recorded game (seed 119) at 3x;
+      when every model's game is over, the autopilot speeds up. Then the means of the five test games.</figcaption>
   </figure>
   <p class="note">In this game holding FIRE (285) beat JEV (210) and both LLMs. Holding FIRE scores 285 in every game: the game
     has no randomness of its own, and the seed only changes when a button press repeats, which cannot

@@ -6,13 +6,13 @@ export const DATA = {
     "name": "Code Autopilot",
     "input": "its own rules",
     "games": 5,
-    "score": 3180,
+    "score": 11349,
     "scores": [
-     800.0,
-     3570.0,
-     3780.0,
-     3785.0,
-     3965.0
+     1885.0,
+     3520.0,
+     5350.0,
+     18000.0,
+     27990.0
     ],
     "latency_ms": 0.0,
     "cost": 0.0
@@ -161,7 +161,7 @@ export const DATA = {
   ],
   "human": 1668.7,
   "random_ref": 148.0,
-  "code_all": 2682,
+  "code_all": 9365,
   "code_all_n": 20,
   "realtime": {
    "jev": [
@@ -169,8 +169,8 @@ export const DATA = {
     198
    ],
    "code": [
-    3180,
-    3180
+    11349,
+    11349
    ]
   }
  },
@@ -189,9 +189,14 @@ export const DATA = {
    "version": "v5",
    "score": 2682,
    "games": 20
+  },
+  {
+   "version": "v6",
+   "score": 9365,
+   "games": 20
   }
  ],
- "code_version_now": "v5",
+ "code_version_now": "v6",
  "example": {
   "image": "assets/frames/example.png",
   "tiers": {
@@ -590,439 +595,10 @@ export const DATA = {
  },
  "quiz": [
   {
-   "image": "assets/frames/approach-2.png",
-   "kind": "approach",
-   "seed": 12,
-   "code_action": "LEFT",
-   "right": [
-    "LEFT",
-    "LEFTFIRE"
-   ],
-   "reason": "The target is 5 px to the left (where it will be when a shot arrives). Firing now would miss.",
-   "tier1": {
-    "ship": {
-     "x": 100,
-     "lives": 3
-    },
-    "gun_ready": false,
-    "player_shot": {
-     "x": 101,
-     "y": 114
-    },
-    "alien_bullets": [
-     {
-      "x": 106,
-      "y": 118,
-      "vy": 1.0
-     }
-    ],
-    "alien_rows": [
-     {
-      "y": 75,
-      "x": [
-       27,
-       43,
-       59,
-       75,
-       91,
-       107
-      ]
-     },
-     {
-      "y": 93,
-      "x": [
-       27,
-       43,
-       59,
-       75
-      ]
-     },
-     {
-      "y": 111,
-      "x": [
-       59,
-       75,
-       91
-      ]
-     },
-     {
-      "y": 129,
-      "x": [
-       59,
-       75,
-       91
-      ]
-     }
-    ],
-    "fleet_vx": 0.0909,
-    "shields": [
-     {
-      "x0": 43,
-      "x1": 49
-     },
-     {
-      "x0": 74,
-      "x1": 81
-     },
-     {
-      "x0": 107,
-      "x1": 113
-     }
-    ],
-    "mothership": {
-     "x": 117.0,
-     "vx": -0.25
-    }
-   }
-  },
-  {
-   "image": "assets/frames/approach-0.png",
-   "kind": "approach",
-   "seed": 11,
-   "code_action": "RIGHT",
-   "right": [
-    "RIGHT",
-    "RIGHTFIRE"
-   ],
-   "reason": "The target is 5 px to the right (where it will be when a shot arrives). Firing now would miss.",
-   "tier1": {
-    "ship": {
-     "x": 89,
-     "lives": 3
-    },
-    "gun_ready": true,
-    "player_shot": null,
-    "alien_bullets": [
-     {
-      "x": 82,
-      "y": 144,
-      "vy": 1.0
-     }
-    ],
-    "alien_rows": [
-     {
-      "y": 115,
-      "x": [
-       82,
-       98,
-       114
-      ]
-     },
-     {
-      "y": 133,
-      "x": [
-       82,
-       98,
-       114
-      ]
-     },
-     {
-      "y": 152,
-      "x": [
-       98
-      ]
-     }
-    ],
-    "fleet_vx": -0.1875,
-    "shields": [],
-    "mothership": {
-     "x": 26.0,
-     "vx": -0.25
-    }
-   }
-  },
-  {
-   "image": "assets/frames/fire-0.png",
-   "kind": "fire",
-   "seed": 2,
-   "code_action": "FIRE",
-   "right": [
-    "FIRE",
-    "RIGHTFIRE",
-    "LEFTFIRE"
-   ],
-   "reason": "The target will be right above the gun when the shot gets there, and the gun is ready.",
-   "tier1": {
-    "ship": {
-     "x": 94,
-     "lives": 3
-    },
-    "gun_ready": true,
-    "player_shot": null,
-    "alien_bullets": [
-     {
-      "x": 83,
-      "y": 150,
-      "vy": 1.0
-     },
-     {
-      "x": 81,
-      "y": 184,
-      "vy": 1.0
-     }
-    ],
-    "alien_rows": [
-     {
-      "y": 135,
-      "x": [
-       50,
-       82,
-       98,
-       114,
-       130
-      ]
-     },
-     {
-      "y": 153,
-      "x": [
-       50,
-       98,
-       114,
-       130
-      ]
-     }
-    ],
-    "fleet_vx": -0.0909,
-    "shields": [],
-    "mothership": null
-   }
-  },
-  {
-   "image": "assets/frames/wall-0.png",
-   "kind": "wall",
-   "seed": 20,
-   "code_action": "RIGHT",
-   "right": [
-    "NOOP",
-    "FIRE",
-    "RIGHT",
-    "RIGHTFIRE"
-   ],
-   "reason": "The ship is against the left wall. Moving left does nothing; the code waits or heads for its target.",
-   "tier1": {
-    "ship": {
-     "x": 37,
-     "lives": 3
-    },
-    "gun_ready": true,
-    "player_shot": null,
-    "alien_bullets": [],
-    "alien_rows": [
-     {
-      "y": 35,
-      "x": [
-       25,
-       41,
-       57,
-       73,
-       89,
-       105
-      ]
-     },
-     {
-      "y": 53,
-      "x": [
-       25,
-       41,
-       57,
-       73,
-       89,
-       105
-      ]
-     },
-     {
-      "y": 71,
-      "x": [
-       25,
-       41,
-       57,
-       73,
-       89,
-       105
-      ]
-     },
-     {
-      "y": 89,
-      "x": [
-       25,
-       41,
-       57,
-       73,
-       89,
-       105
-      ]
-     },
-     {
-      "y": 107,
-      "x": [
-       25,
-       41,
-       57,
-       73,
-       89,
-       105
-      ]
-     },
-     {
-      "y": 125,
-      "x": [
-       25,
-       41,
-       57,
-       73,
-       89,
-       105
-      ]
-     }
-    ],
-    "fleet_vx": 0.0312,
-    "shields": [
-     {
-      "x0": 42,
-      "x1": 49
-     },
-     {
-      "x0": 74,
-      "x1": 81
-     },
-     {
-      "x0": 106,
-      "x1": 113
-     }
-    ],
-    "mothership": null
-   }
-  },
-  {
-   "image": "assets/frames/danger-0.png",
-   "kind": "danger",
-   "seed": 14,
-   "code_action": "LEFT",
-   "right": [
-    "RIGHT",
-    "LEFT",
-    "RIGHTFIRE",
-    "LEFTFIRE"
-   ],
-   "reason": "An alien bullet would hit the ship if it stayed. Moving left is safe.",
-   "tier1": {
-    "ship": {
-     "x": 89,
-     "lives": 3
-    },
-    "gun_ready": true,
-    "player_shot": null,
-    "alien_bullets": [
-     {
-      "x": 91,
-      "y": 152,
-      "vy": 1.0
-     }
-    ],
-    "alien_rows": [
-     {
-      "y": 75,
-      "x": [
-       42,
-       58,
-       74,
-       90,
-       106,
-       122
-      ]
-     },
-     {
-      "y": 93,
-      "x": [
-       42,
-       58,
-       74,
-       90,
-       106,
-       122
-      ]
-     },
-     {
-      "y": 112,
-      "x": [
-       42,
-       58,
-       74,
-       90,
-       122
-      ]
-     },
-     {
-      "y": 129,
-      "x": [
-       58,
-       74,
-       122
-      ]
-     },
-     {
-      "y": 147,
-      "x": [
-       122
-      ]
-     },
-     {
-      "y": 165,
-      "x": [
-       122
-      ]
-     }
-    ],
-    "fleet_vx": -0.0156,
-    "shields": [],
-    "mothership": {
-     "x": 87.0,
-     "vx": 0.25
-    }
-   }
-  },
-  {
-   "image": "assets/frames/approach-1.png",
-   "kind": "approach",
-   "seed": 19,
-   "code_action": "LEFT",
-   "right": [
-    "LEFT",
-    "LEFTFIRE"
-   ],
-   "reason": "The target is 22 px to the left (where it will be when a shot arrives). Firing now would miss.",
-   "tier1": {
-    "ship": {
-     "x": 81,
-     "lives": 3
-    },
-    "gun_ready": true,
-    "player_shot": null,
-    "alien_bullets": [
-     {
-      "x": 42,
-      "y": 190,
-      "vy": 1.0
-     }
-    ],
-    "alien_rows": [
-     {
-      "y": 165,
-      "x": [
-       50
-      ]
-     }
-    ],
-    "fleet_vx": 1.25,
-    "shields": [],
-    "mothership": null
-   }
-  },
-  {
    "image": "assets/frames/wall-1.png",
    "kind": "wall",
-   "seed": 16,
-   "code_action": "FIRE",
+   "seed": 19,
+   "code_action": "RIGHT",
    "right": [
     "NOOP",
     "FIRE",
@@ -1040,7 +616,7 @@ export const DATA = {
     "alien_bullets": [],
     "alien_rows": [
      {
-      "y": 75,
+      "y": 55,
       "x": [
        25,
        41,
@@ -1051,7 +627,7 @@ export const DATA = {
       ]
      },
      {
-      "y": 93,
+      "y": 73,
       "x": [
        25,
        41,
@@ -1062,7 +638,7 @@ export const DATA = {
       ]
      },
      {
-      "y": 111,
+      "y": 91,
       "x": [
        25,
        41,
@@ -1073,7 +649,7 @@ export const DATA = {
       ]
      },
      {
-      "y": 129,
+      "y": 109,
       "x": [
        25,
        41,
@@ -1084,7 +660,7 @@ export const DATA = {
       ]
      },
      {
-      "y": 147,
+      "y": 127,
       "x": [
        25,
        41,
@@ -1095,7 +671,7 @@ export const DATA = {
       ]
      },
      {
-      "y": 165,
+      "y": 145,
       "x": [
        25,
        41,
@@ -1107,136 +683,6 @@ export const DATA = {
      }
     ],
     "fleet_vx": 0.0312,
-    "shields": [],
-    "mothership": null
-   }
-  },
-  {
-   "image": "assets/frames/fire-2.png",
-   "kind": "fire",
-   "seed": 16,
-   "code_action": "FIRE",
-   "right": [
-    "FIRE",
-    "RIGHTFIRE",
-    "LEFTFIRE"
-   ],
-   "reason": "The target will be right above the gun when the shot gets there, and the gun is ready.",
-   "tier1": {
-    "ship": {
-     "x": 61,
-     "lives": 3
-    },
-    "gun_ready": true,
-    "player_shot": null,
-    "alien_bullets": [
-     {
-      "x": 45,
-      "y": 118,
-      "vy": 1.0
-     }
-    ],
-    "alien_rows": [
-     {
-      "y": 105,
-      "x": [
-       48,
-       64,
-       80,
-       96
-      ]
-     },
-     {
-      "y": 123,
-      "x": [
-       64,
-       80
-      ]
-     }
-    ],
-    "fleet_vx": 0.1875,
-    "shields": [],
-    "mothership": {
-     "x": 80.0,
-     "vx": -0.25
-    }
-   }
-  },
-  {
-   "image": "assets/frames/danger-1.png",
-   "kind": "danger",
-   "seed": 13,
-   "code_action": "LEFT",
-   "right": [
-    "RIGHT",
-    "LEFT",
-    "RIGHTFIRE",
-    "LEFTFIRE"
-   ],
-   "reason": "An alien bullet would hit the ship if it stayed. Moving left is safe.",
-   "tier1": {
-    "ship": {
-     "x": 68,
-     "lives": 3
-    },
-    "gun_ready": true,
-    "player_shot": null,
-    "alien_bullets": [
-     {
-      "x": 36,
-      "y": 92,
-      "vy": 1.0
-     },
-     {
-      "x": 72,
-      "y": 152,
-      "vy": 1.0
-     }
-    ],
-    "alien_rows": [
-     {
-      "y": 65,
-      "x": [
-       34,
-       50,
-       66,
-       82,
-       98,
-       114
-      ]
-     },
-     {
-      "y": 83,
-      "x": [
-       50,
-       66,
-       82,
-       98
-      ]
-     },
-     {
-      "y": 102,
-      "x": [
-       50,
-       66,
-       82,
-       98
-      ]
-     },
-     {
-      "y": 119,
-      "x": [
-       50
-      ]
-     },
-     {
-      "y": 137,
-      "x": [
-       50
-      ]
-     }
-    ],
-    "fleet_vx": -0.0909,
     "shields": [
      {
       "x0": 42,
@@ -1267,15 +713,571 @@ export const DATA = {
    "reason": "The target will be right above the gun when the shot gets there, and the gun is ready.",
    "tier1": {
     "ship": {
-     "x": 52,
+     "x": 113,
      "lives": 3
     },
     "gun_ready": true,
     "player_shot": null,
     "alien_bullets": [
      {
-      "x": 65,
-      "y": 150,
+      "x": 82,
+      "y": 186,
+      "vy": 1.0
+     }
+    ],
+    "alien_rows": [
+     {
+      "y": 85,
+      "x": [
+       30,
+       46,
+       62,
+       78
+      ]
+     },
+     {
+      "y": 103,
+      "x": [
+       62,
+       78
+      ]
+     },
+     {
+      "y": 121,
+      "x": [
+       30,
+       46,
+       62,
+       78
+      ]
+     },
+     {
+      "y": 139,
+      "x": [
+       30,
+       62,
+       78
+      ]
+     }
+    ],
+    "fleet_vx": -0.0909,
+    "shields": [],
+    "mothership": {
+     "x": 95.5,
+     "vx": 0.25
+    }
+   }
+  },
+  {
+   "image": "assets/frames/wall-0.png",
+   "kind": "wall",
+   "seed": 13,
+   "code_action": "RIGHT",
+   "right": [
+    "NOOP",
+    "FIRE",
+    "RIGHT",
+    "RIGHTFIRE"
+   ],
+   "reason": "The ship is against the left wall. Moving left does nothing; the code waits or heads for its target.",
+   "tier1": {
+    "ship": {
+     "x": 37,
+     "lives": 3
+    },
+    "gun_ready": true,
+    "player_shot": null,
+    "alien_bullets": [],
+    "alien_rows": [
+     {
+      "y": 65,
+      "x": [
+       25,
+       41,
+       57,
+       73,
+       89,
+       105
+      ]
+     },
+     {
+      "y": 83,
+      "x": [
+       25,
+       41,
+       57,
+       73,
+       89,
+       105
+      ]
+     },
+     {
+      "y": 102,
+      "x": [
+       25,
+       41,
+       57,
+       73,
+       89,
+       105
+      ]
+     },
+     {
+      "y": 119,
+      "x": [
+       25,
+       41,
+       57,
+       73,
+       89,
+       105
+      ]
+     },
+     {
+      "y": 137,
+      "x": [
+       25,
+       41,
+       57,
+       73,
+       89,
+       105
+      ]
+     },
+     {
+      "y": 155,
+      "x": [
+       25,
+       41,
+       57,
+       73,
+       89,
+       105
+      ]
+     }
+    ],
+    "fleet_vx": 0.0312,
+    "shields": [],
+    "mothership": null
+   }
+  },
+  {
+   "image": "assets/frames/danger-0.png",
+   "kind": "danger",
+   "seed": 12,
+   "code_action": "LEFT",
+   "right": [
+    "RIGHT",
+    "LEFT",
+    "RIGHTFIRE",
+    "LEFTFIRE"
+   ],
+   "reason": "An alien bullet would hit the ship if it stayed. Moving left is safe.",
+   "tier1": {
+    "ship": {
+     "x": 51,
+     "lives": 3
+    },
+    "gun_ready": true,
+    "player_shot": null,
+    "alien_bullets": [
+     {
+      "x": 55,
+      "y": 148,
+      "vy": 1.0
+     }
+    ],
+    "alien_rows": [
+     {
+      "y": 85,
+      "x": [
+       53,
+       69,
+       85,
+       101,
+       117
+      ]
+     },
+     {
+      "y": 103,
+      "x": [
+       53,
+       69,
+       85,
+       101,
+       117
+      ]
+     },
+     {
+      "y": 121,
+      "x": [
+       53,
+       69,
+       85,
+       101,
+       117
+      ]
+     },
+     {
+      "y": 139,
+      "x": [
+       69,
+       85,
+       117
+      ]
+     },
+     {
+      "y": 157,
+      "x": [
+       117
+      ]
+     }
+    ],
+    "fleet_vx": -0.0909,
+    "shields": [],
+    "mothership": {
+     "x": 98.0,
+     "vx": -0.25
+    }
+   }
+  },
+  {
+   "image": "assets/frames/approach-0.png",
+   "kind": "approach",
+   "seed": 12,
+   "code_action": "RIGHT",
+   "right": [
+    "RIGHT",
+    "RIGHTFIRE"
+   ],
+   "reason": "The target is 8 px to the right (where it will be when a shot arrives). Firing now would miss.",
+   "tier1": {
+    "ship": {
+     "x": 96,
+     "lives": 3
+    },
+    "gun_ready": true,
+    "player_shot": null,
+    "alien_bullets": [
+     {
+      "x": 37,
+      "y": 168,
+      "vy": 1.0
+     }
+    ],
+    "alien_rows": [
+     {
+      "y": 95,
+      "x": [
+       55,
+       71,
+       87,
+       103
+      ]
+     },
+     {
+      "y": 113,
+      "x": [
+       39,
+       55,
+       71,
+       87,
+       103
+      ]
+     },
+     {
+      "y": 132,
+      "x": [
+       39,
+       55,
+       71,
+       87,
+       103
+      ]
+     },
+     {
+      "y": 149,
+      "x": [
+       55,
+       71,
+       87
+      ]
+     }
+    ],
+    "fleet_vx": 0.0909,
+    "shields": [],
+    "mothership": null
+   }
+  },
+  {
+   "image": "assets/frames/approach-1.png",
+   "kind": "approach",
+   "seed": 20,
+   "code_action": "LEFT",
+   "right": [
+    "LEFT",
+    "LEFTFIRE"
+   ],
+   "reason": "The target is 19 px to the left (where it will be when a shot arrives). Firing now would miss.",
+   "tier1": {
+    "ship": {
+     "x": 83,
+     "lives": 3
+    },
+    "gun_ready": false,
+    "player_shot": {
+     "x": 94,
+     "y": 130
+    },
+    "alien_bullets": [
+     {
+      "x": 96,
+      "y": 106,
+      "vy": 1.0
+     },
+     {
+      "x": 111,
+      "y": 138,
+      "vy": 1.0
+     }
+    ],
+    "alien_rows": [
+     {
+      "y": 105,
+      "x": [
+       80,
+       96
+      ]
+     },
+     {
+      "y": 123,
+      "x": [
+       80
+      ]
+     }
+    ],
+    "fleet_vx": -0.4286,
+    "shields": [],
+    "mothership": null
+   }
+  },
+  {
+   "image": "assets/frames/danger-1.png",
+   "kind": "danger",
+   "seed": 11,
+   "code_action": "RIGHT",
+   "right": [
+    "RIGHT",
+    "LEFT",
+    "RIGHTFIRE",
+    "LEFTFIRE"
+   ],
+   "reason": "An alien bullet would hit the ship if it stayed. Moving right is safe.",
+   "tier1": {
+    "ship": {
+     "x": 116,
+     "lives": 3
+    },
+    "gun_ready": true,
+    "player_shot": null,
+    "alien_bullets": [
+     {
+      "x": 119,
+      "y": 126,
+      "vy": 1.0
+     },
+     {
+      "x": 113,
+      "y": 162,
+      "vy": 1.0
+     }
+    ],
+    "alien_rows": [
+     {
+      "y": 95,
+      "x": [
+       93,
+       109,
+       125
+      ]
+     },
+     {
+      "y": 113,
+      "x": [
+       93,
+       109
+      ]
+     },
+     {
+      "y": 131,
+      "x": [
+       109
+      ]
+     },
+     {
+      "y": 149,
+      "x": [
+       109
+      ]
+     }
+    ],
+    "fleet_vx": 0.1875,
+    "shields": [],
+    "mothership": null
+   }
+  },
+  {
+   "image": "assets/frames/approach-2.png",
+   "kind": "approach",
+   "seed": 12,
+   "code_action": "RIGHT",
+   "right": [
+    "RIGHT",
+    "RIGHTFIRE"
+   ],
+   "reason": "The target is 49 px to the right (where it will be when a shot arrives). Firing now would miss.",
+   "tier1": {
+    "ship": {
+     "x": 63,
+     "lives": 3
+    },
+    "gun_ready": true,
+    "player_shot": null,
+    "alien_bullets": [
+     {
+      "x": 98,
+      "y": 158,
+      "vy": 1.0
+     }
+    ],
+    "alien_rows": [
+     {
+      "y": 85,
+      "x": [
+       46,
+       62,
+       78,
+       94,
+       110
+      ]
+     },
+     {
+      "y": 103,
+      "x": [
+       46,
+       62,
+       78,
+       94,
+       110
+      ]
+     },
+     {
+      "y": 121,
+      "x": [
+       46,
+       62,
+       78,
+       94,
+       110
+      ]
+     },
+     {
+      "y": 139,
+      "x": [
+       62,
+       78,
+       110
+      ]
+     }
+    ],
+    "fleet_vx": -0.0909,
+    "shields": [],
+    "mothership": {
+     "x": 134.0,
+     "vx": -0.25
+    }
+   }
+  },
+  {
+   "image": "assets/frames/fire-0.png",
+   "kind": "fire",
+   "seed": 4,
+   "code_action": "FIRE",
+   "right": [
+    "FIRE",
+    "RIGHTFIRE",
+    "LEFTFIRE"
+   ],
+   "reason": "The target will be right above the gun when the shot gets there, and the gun is ready.",
+   "tier1": {
+    "ship": {
+     "x": 113,
+     "lives": 3
+    },
+    "gun_ready": true,
+    "player_shot": null,
+    "alien_bullets": [
+     {
+      "x": 112,
+      "y": 132,
+      "vy": 1.0
+     },
+     {
+      "x": 119,
+      "y": 182,
+      "vy": 1.0
+     }
+    ],
+    "alien_rows": [
+     {
+      "y": 95,
+      "x": [
+       112,
+       128
+      ]
+     },
+     {
+      "y": 113,
+      "x": [
+       112,
+       128
+      ]
+     },
+     {
+      "y": 132,
+      "x": [
+       112,
+       128
+      ]
+     }
+    ],
+    "fleet_vx": 0.1875,
+    "shields": [],
+    "mothership": null
+   }
+  },
+  {
+   "image": "assets/frames/fire-2.png",
+   "kind": "fire",
+   "seed": 13,
+   "code_action": "FIRE",
+   "right": [
+    "FIRE",
+    "RIGHTFIRE",
+    "LEFTFIRE"
+   ],
+   "reason": "The target will be right above the gun when the shot gets there, and the gun is ready.",
+   "tier1": {
+    "ship": {
+     "x": 81,
+     "lives": 3
+    },
+    "gun_ready": true,
+    "player_shot": null,
+    "alien_bullets": [
+     {
+      "x": 100,
+      "y": 158,
       "vy": 1.0
      }
     ],
@@ -1283,59 +1285,62 @@ export const DATA = {
      {
       "y": 75,
       "x": [
-       50,
-       66,
-       82,
-       98,
-       114,
-       130
+       37,
+       53,
+       69,
+       85,
+       101,
+       117
       ]
      },
      {
       "y": 93,
       "x": [
-       50,
-       66,
-       82,
-       98,
-       114,
-       130
+       37,
+       53,
+       69,
+       85,
+       101,
+       117
       ]
      },
      {
       "y": 111,
       "x": [
-       50,
-       66,
-       82,
-       98,
-       114,
-       130
+       37,
+       53,
+       69,
+       85,
+       101,
+       117
       ]
      },
      {
       "y": 129,
       "x": [
-       50,
-       82,
-       98,
-       114,
-       130
+       37,
+       53,
+       69,
+       85,
+       117
       ]
      },
      {
       "y": 147,
       "x": [
-       50,
-       114,
-       130
+       37,
+       53,
+       69,
+       85
       ]
      },
      {
       "y": 165,
       "x": [
-       50,
-       130
+       37,
+       53,
+       69,
+       85
       ]
      }
     ],
@@ -1361,6 +1366,11 @@ export const DATA = {
     "version": "v5",
     "rule": "When the aliens are one drop from landing, clear the lowest row first.",
     "tuning": "+399 and +381 points per game over v4 on two tuning seed sets"
+   },
+   {
+    "version": "v6",
+    "rule": "In that last drop, shoot first the alien that is about to leave the gun's reach, and fire only within 3 px.",
+    "tuning": "+10,741 points per game over v5 on 200 tuning seeds (better on 144); found by watching evaluation seed 119, after the entry lock"
    }
   ],
   "failed": [
@@ -1441,26 +1451,26 @@ export const DATA = {
    {
     "wave": 2,
     "start_y": 135,
-    "cleared": 68,
-    "invaded": 14
+    "cleared": 67,
+    "invaded": 15
    },
    {
     "wave": 3,
     "start_y": 145,
-    "cleared": 62,
-    "invaded": 6
+    "cleared": 64,
+    "invaded": 3
    },
    {
     "wave": 4,
     "start_y": 155,
-    "cleared": 50,
-    "invaded": 12
+    "cleared": 63,
+    "invaded": 1
    },
    {
     "wave": 5,
     "start_y": 165,
-    "cleared": 3,
-    "invaded": 47
+    "cleared": 62,
+    "invaded": 1
    }
   ]
  },

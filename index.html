@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Space Invaders, three ways to decide</title>
-<meta name="description" content="Holding FIRE beat two LLMs and matched JEV at Atari Space Invaders. The Code Autopilot, seeing the same screen, beat all three by more than ten times. Why, explained.">
+<meta name="description" content="Holding FIRE beat two LLMs and matched JEV at Atari Space Invaders. The Code Autopilot, seeing the same screen, beat all three by more than 50 times. Why, explained.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Space Invaders, three ways to decide">
-<meta property="og:description" content="Holding FIRE beat two LLMs and matched JEV at Atari Space Invaders. The Code Autopilot, seeing the same screen, beat all three by more than ten times.">
+<meta property="og:description" content="Holding FIRE beat two LLMs and matched JEV at Atari Space Invaders. The Code Autopilot, seeing the same screen, beat all three by more than 50 times.">
 <meta property="og:url" content="https://13rac1.github.io/ufa-2026-09-spaceinvaders/">
 <meta property="og:image" content="https://13rac1.github.io/ufa-2026-09-spaceinvaders/assets/social.png">
 <meta property="og:image:width" content="1280">
 <meta property="og:image:height" content="640">
-<meta property="og:image:alt" content="Space Invaders, three ways to decide: mean scores on the same five games. Code Autopilot 3,180, Hold FIRE 285, JEV 221, Random 125, Qwen 113, Haiku 105; human reference 1,669.">
+<meta property="og:image:alt" content="Space Invaders, three ways to decide: mean scores on the same five games. Code Autopilot 11,349, Hold FIRE 285, JEV 221, Random 125, Qwen 113, Haiku 105; human reference 1,669.">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,13 +35,13 @@
         <h1>Holding FIRE<br>beat the AI.</h1>
         <p class="lede">Just holding the FIRE button outscored two LLMs and matched JEV. The
           <dfn data-term="code">Code Autopilot</dfn>, running no model while it plays, beat all three by
-          more than ten times.</p>
+          more than 50 times.</p>
         <p class="twist">JEV still beat both LLMs, 12x faster and 35x cheaper.</p>
       </div>
       <figure class="hero-frame">
         <img src="assets/hero-frame.png" width="240" height="315"
-          alt="Atari Space Invaders: the score reads 3235, rows of aliens above the green ship, one alien exploding.">
-        <figcaption>The Code Autopilot in wave 4 of a test game: 3,235 points so far, 3,965 at the end.</figcaption>
+          alt="Atari Space Invaders: the score reads 9110, part of the alien fleet above the green ship, a shot and an alien bullet in the air.">
+        <figcaption>The Code Autopilot in a test game (seed 119): 9,110 points so far, 15,590 at the end.</figcaption>
       </figure>
     </div>
     <div id="hero-chart" class="chart hero-chart"></div>
@@ -63,13 +63,13 @@
   <h2>Watch them play</h2>
   <figure class="video">
     <video src="assets/six-players.mp4" poster="assets/six-players.jpg" controls muted playsinline loop preload="metadata"></video>
-    <figcaption>One game (seed 119), 3x speed. Top: the autopilot, JEV, Claude Haiku 4.5. Bottom: Qwen3.8 27B,
-      hold FIRE, random buttons.</figcaption>
+    <figcaption>One game (seed 119), 3x speed; when every model's game is over, the autopilot speeds up.
+      Top: the autopilot, JEV, Claude Haiku 4.5. Bottom: Qwen3.8 27B, hold FIRE, random buttons.</figcaption>
   </figure>
-  <p class="note">In this game JEV beat holding FIRE, 425 to 285. Holding FIRE scores 285 in every game: the game
+  <p class="note">In this game holding FIRE (285) beat JEV (210) and both LLMs. Holding FIRE scores 285 in every game: the game
     has no randomness of its own, and the seed only changes when a button press repeats, which cannot
-    change a player that always presses FIRE. JEV's 11 recorded games range from 105 to 660 and
-    average 296, level with FIRE. Over the five test games it averaged 221 and beat FIRE in two of
+    change a player that always presses FIRE. JEV's 12 recorded games range from 105 to 660 and
+    average 289, level with FIRE. Over the five test games it averaged 221 and beat FIRE in two of
     them. The chart above shows every game.</p>
 </section>
 
@@ -77,7 +77,7 @@
   <h2>Why? Who is playing</h2>
   <div class="cards four">
     <article class="card c-code"><h3>Code Autopilot</h3>
-      <p class="what">Rules written by an AI coding agent (Claude) with the operator: five versions, tens of thousands of practice games. No model runs while it plays.</p>
+      <p class="what">Rules written by an AI coding agent (Claude) with the operator: six versions, tens of thousands of practice games. No model runs while it plays.</p>
       <p class="facts"><span>&lt; 0.1 ms</span><span>$0</span></p></article>
     <article class="card c-jev"><h3>JEV</h3>
       <p class="what">TypeSafe's decision model. Built on a language model, but it reads the odds of each option instead of writing an answer.</p>
@@ -147,7 +147,9 @@
 
 <section id="waves" class="wrap">
   <h2>Why games end</h2>
-  <p>The aliens land. Each wave starts lower; wave 5 starts at the line.</p>
+  <p>The aliens land. Each wave starts lower; wave 5 starts at the line, and so does every wave
+    after it. In 99 practice games the autopilot (v6) lost 32 to a landing in waves 1 and 2, but 62
+    cleared wave 5 and most kept going: the longest games reached wave 38.</p>
   <div id="waves-chart" class="chart"></div>
 </section>
 
@@ -155,7 +157,7 @@
   <h2>Going further</h2>
   <h3>The autopilot got better</h3>
   <div id="versions-chart" class="chart"></div>
-  <details><summary>The three rules, and ideas that failed</summary><ol class="rules" id="rules"></ol><ul id="failed"></ul></details>
+  <details><summary>The four rules, and ideas that failed</summary><ol class="rules" id="rules"></ol><ul id="failed"></ul></details>
   <h3>Telling the models how to win</h3>
   <p>Maybe the models lose because nobody told them the strategy. So we added the autopilot's
     strategy to the question, in plain words: dodge, aim at the lowest alien of the nearer edge column,
